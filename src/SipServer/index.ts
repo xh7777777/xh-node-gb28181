@@ -1,17 +1,13 @@
 import sip from 'sip';
 import { SipServerConfig, SipRequest, SipRemote } from '../types/sip.type';
+import { SIP_CONFIG } from '../config';
 import logUtil from '../utils/logUtil';
 
 const logger = logUtil('SipServer');
 
-const defaultSipConfig: SipServerConfig = {
-    port: 5060,
-    host: 'localhost',
-};
-
 export default class SipServer {
     private running: boolean = false;
-    private sipConfig: SipServerConfig = defaultSipConfig;
+    private sipConfig: SipServerConfig = SIP_CONFIG;
     private onRequest: (req:SipRequest, remote?:any) => void;
 
     /*

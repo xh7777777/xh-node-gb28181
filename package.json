@@ -16,10 +16,13 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "dotenv": "^16.4.4",
     "koa": "^2.15.0",
     "koa-body": "^6.0.1",
     "koa-router": "^12.0.1",
     "log4js": "^6.9.1",
+    "mysql2": "^3.9.1",
+    "sequelize": "^6.37.0",
     "sip": "^0.0.6"
   }
 }
