@@ -15,7 +15,7 @@ export interface SipRequest {
   uri: string;
   version: string;
   headers: {
-    via: Object[];
+    via: SipVia[];
     to: {
         name: string | undefined;
         uri: string;
@@ -38,9 +38,21 @@ export interface SipRequest {
     "user-agent": string;
     expires?: string;
     "www-authenticate"?: string;
-    authorization?: any
+    authorization?: SipAuth[]
   };
   content: string;
+}
+
+export interface SipVia {
+    version: string;
+    protocol: string;
+    host: string;
+    port: number;
+    params: {
+        rport: string;
+        branch: string;
+        received: string;
+    };
 }
 
 export interface SipRemote {
@@ -51,4 +63,18 @@ export interface SipRemote {
         address: string;
         port: number;
     }
+}
+
+export interface SipAuth {
+    scheme: string;
+    realm: string;
+    username: string;
+    uri: string;
+    nonce: string;
+    response: string;
+    algorithm: string;
+    opaque: string;
+    qop: string;
+    nc: string;
+    cnonce: string;
 }

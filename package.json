@@ -10,6 +10,8 @@
   "devDependencies": {
     "@types/koa-router": "^7.4.8",
     "@types/node": "^20.11.17",
+    "@types/uuid": "^9.0.8",
+    "@types/xml2js": "^0.4.14",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tslib": "^2.6.2",
@@ -23,6 +25,7 @@
     "log4js": "^6.9.1",
     "mysql2": "^3.9.1",
     "sequelize": "^6.37.0",
-    "sip": "^0.0.6"
+    "sip": "^0.0.6",
+    "xml2js": "^0.6.2"
   }
 }
