@@ -1,8 +1,11 @@
-export default interface IRedisDevice {
-    key: string; // 设备ID
-    value: {
-        ip: string; // 设备IP
-        port: number; // 设备端口
-        online: boolean; // 设备是否在线
-    }
+export interface IRedisDevice {
+    deviceId: string;
+    deviceName: string;
+    sipHost: string;
+    sipPort: number;
+    lastPulse: number;
+    lastRegisterTime: number;
+    registerExpires: number;
+    pulseExpires: number;
 }
+

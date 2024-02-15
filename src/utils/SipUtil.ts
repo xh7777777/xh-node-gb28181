@@ -1,25 +1,28 @@
 import { SipRequest } from "../types/sip.type";
+import { IRedisDevice } from "../models/redis/device";
 
 export function trimQuotString(source: string) {
   return source.replace(/"/g, "");
 }
 
-export function getDeviceInfoFromSip(req: SipRequest) {
-  const defaultExpire = process.env.SIP_EXPIRE || 3600;
+export function getDeviceInfoFromSip(req: SipRequest):IRedisDevice {
+  const defaultExpire = parseInt(process.env.SIP_EXPIRE || '3600');
+  const defaultPulseExpire = parseInt(process.env.SIP_PULSE_EXPIRE || '60') ;
   return {
-    device_id: req.headers.from.uri.split(":")[1],
-    device_name:
+    deviceId: req.headers.from.uri.split(":")[1],
+    deviceName:
       req.headers.from.name === undefined
         ? "未命名设备"
         : req.headers.from.name,
-    sip_host: req.headers.via[0].host,
-    sip_port: req.headers.via[0].port,
-    last_pulse: Date.now(), // 最后一次心跳验证的时间戳
+    sipHost: req.headers.via[0].host,
+    sipPort: req.headers.via[0].port,
+    lastPulse: Date.now(), // 最后一次心跳验证的时间戳
     lastRegisterTime: Date.now(), // 最后注册时间
     registerExpires:
       req.headers.expires === undefined
         ? defaultExpire
         : parseInt(req.headers.expires), // 注册过期时间
+    pulseExpires: defaultPulseExpire, // 心跳过期时间
   };
 }
 

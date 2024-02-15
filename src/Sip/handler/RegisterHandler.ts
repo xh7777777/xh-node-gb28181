@@ -3,8 +3,9 @@ import digest from "sip/digest";
 import sip from "sip";
 import logUtil from "../../utils/logUtil";
 const logger = logUtil("RegisterHandler");
-import { trimQuotString } from "../../utils/SipUtil";
+import { trimQuotString, getDeviceInfoFromSip } from "../../utils/SipUtil";
 import { DeviceController } from "../../controller/DeviceController";
+import { isExpire } from "../../utils/authUtil";
 
 export default class RegisterHandler {
   public static async handleRegister(req: SipRequest) {
@@ -15,7 +16,7 @@ export default class RegisterHandler {
       sip.send(sip.makeResponse(req, 500, "Server Internal Error"));
     }
   }
-  public static async makeRegisterResp(req: SipRequest): Promise<SipRequest> {
+  private static async makeRegisterResp(req: SipRequest): Promise<SipRequest> {
     // 查询数据库获取用户信息 检查设备是否已经注册或过期
     let userinfo = {
       password: "123456abc",
@@ -24,8 +25,13 @@ export default class RegisterHandler {
       },
     };
     let resp;
-    const device = await DeviceController.getDeviceById(req);
-    
+    let expire = await this.checkRegisterExpire(req);
+    if (!expire) {
+      logger.info(`设备已经注册且未过期,uri:${req.headers.from.uri}`);
+      return sip.makeResponse(req, 200, "Ok");;
+    }
+
+
     // 存在验证
     if (req.headers.authorization) {
       if (
@@ -64,7 +70,7 @@ export default class RegisterHandler {
         if (check) {
           logger.info(`成功授权,uri:${req.headers.from.uri}`);
           // 更新设备信息到redis
-          await DeviceController.setDeviceToRedis(req);
+          await DeviceController.setDeviceToRedis(getDeviceInfoFromSip(req));
           resp = sip.makeResponse(req, 200, "Ok");
         }
       }
@@ -77,5 +83,10 @@ export default class RegisterHandler {
       );
     }
     return resp;
+  }
+
+  private static async checkRegisterExpire(req: SipRequest): Promise<boolean>{
+    const device = await DeviceController.getDeviceById(getDeviceInfoFromSip(req));
+    return isExpire(device.lastRegisterTime, device.registerExpires);
   }
 }
