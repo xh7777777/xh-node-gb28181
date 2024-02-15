@@ -4,13 +4,18 @@ import sip from "sip";
 import logUtil from "../../utils/logUtil";
 const logger = logUtil("RegisterHandler");
 import { trimQuotString } from "../../utils/SipUtil";
+import { DeviceController } from "../../controller/DeviceController";
 
 export default class RegisterHandler {
   public static async handleRegister(req: SipRequest) {
     const resp = await this.makeRegisterResp(req);
-    sip.send(resp);
+    if (resp) {
+      sip.send(resp);
+    } else {
+      sip.send(sip.makeResponse(req, 500, "Server Internal Error"));
+    }
   }
-  private static async makeRegisterResp(req: SipRequest): Promise<SipRequest> {
+  public static async makeRegisterResp(req: SipRequest): Promise<SipRequest> {
     // 查询数据库获取用户信息 检查设备是否已经注册或过期
     let userinfo = {
       password: "123456abc",
@@ -19,6 +24,8 @@ export default class RegisterHandler {
       },
     };
     let resp;
+    const device = await DeviceController.getDeviceById(req);
+    
     // 存在验证
     if (req.headers.authorization) {
       if (
@@ -56,6 +63,8 @@ export default class RegisterHandler {
         });
         if (check) {
           logger.info(`成功授权,uri:${req.headers.from.uri}`);
+          // 更新设备信息到redis
+          await DeviceController.setDeviceToRedis(req);
           resp = sip.makeResponse(req, 200, "Ok");
         }
       }

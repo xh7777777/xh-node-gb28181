@@ -6,16 +6,23 @@ import { SIP_CONFIG } from "./config";
 import { testConnection, syncModel } from "./utils/dbUtil";
 import RegisterHandler from "./Sip/handler/RegisterHandler";
 import MessageHandler from "./Sip/handler/MessageHandler";
+import client from "./middleware/redis";
+import logUtil from "./utils/logUtil";
+const logger = logUtil("main");
 
+//测试redis连接
+client.connect().then(() => {
+    logger.info("Redis connected");
+});
 
 //启动sip服务器，实例创建后自动启动
-new SipServer(SIP_CONFIG, (req, remote) => {
+new SipServer(SIP_CONFIG, async (req, remote) => {
   console.log("SipServer received request: ", req);
   const { method } = req;
     if (method === "REGISTER") {
-        RegisterHandler.handleRegister(req);
+        await RegisterHandler.handleRegister(req);
     } else if (method === "MESSAGE") {
-        MessageHandler.handleMessage(req);
+        await MessageHandler.handleMessage(req);
     }
 });
 

@@ -18,9 +18,20 @@ services:
       - "13306:3306"
     networks:
       - gb-net
+  gbredis:
+    container_name: gbredis
+    restart: unless-stopped
+    image: redis:latest
+    ports:
+      - "16379:6379"
+    networks:
+      - gb-net
+    volumes:
+      - gb-redis-data:/data
 
 volumes:
   gb-data:
+  gb-redis-data:
 
 networks:
   gb-net:

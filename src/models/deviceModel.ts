@@ -1,4 +1,4 @@
-import { sequelize } from "../utils/dbUtil";
+import sequelize from "../middleware/mysql";
 import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import { v4 } from "uuid";
 
