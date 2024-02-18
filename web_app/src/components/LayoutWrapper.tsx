@@ -1,18 +1,18 @@
-import React, { Children } from 'react';
+import React from 'react';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import { headerNavLinks } from '../data/config';
+import { useNavigate } from 'react-router-dom';
 
 const { Header, Content, Footer } = Layout;
 
-const items = new Array(15).fill(null).map((_, index) => ({
-  key: index + 1,
-  label: `nav ${index + 1}`,
-}));
-
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
+  const [current, setCurrent] = React.useState('1');
+  const navigate = useNavigate();
+  const handleNavigate = (e: any) => {
+    const index = e.key - 1 < 0 ? 0 : e.key - 1;
+    setCurrent(e.key);
+    navigate(headerNavLinks[index].href);
+  }
 
   return (
     <Layout className=' h-screen'>
@@ -21,19 +21,16 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
         <Menu
           theme="dark"
           mode="horizontal"
-          defaultSelectedKeys={['2']}
+          defaultSelectedKeys={['1']}
           items={headerNavLinks}
           style={{ flex: 1, minWidth: 0 }}
+          selectedKeys={[current]}
+          onSelect={handleNavigate}
         />
       </Header>
-      <Content className=' px-11 overflow-y-auto'>
+      <Content className='p-11 overflow-y-auto'>
         <div
-          style={{
-            background: colorBgContainer,
-            minHeight: 280,
-            padding: 24,
-            borderRadius: borderRadiusLG,
-          }}
+          className=" bg-slate-200 h-full p-10 rounded-lg"
         >
           {children}
         </div>

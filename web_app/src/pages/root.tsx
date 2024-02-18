@@ -1,9 +1,12 @@
 import LayoutWrapper from "../components/LayoutWrapper";
+import { Outlet } from "react-router-dom";
 
 export default function Root() {
     return (
         <LayoutWrapper>
-            123
+            <div id="detail">
+                <Outlet />
+            </div>
         </LayoutWrapper>
     );
 } 
