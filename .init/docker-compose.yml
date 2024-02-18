@@ -1,5 +1,6 @@
 version: "3"
 services:
+# 启动mysql
   gbserver:
     container_name: gbserver
     restart: unless-stopped
@@ -18,6 +19,7 @@ services:
       - "13306:3306"
     networks:
       - gb-net
+# 启动redis
   gbredis:
     container_name: gbredis
     restart: unless-stopped
@@ -28,6 +30,8 @@ services:
       - gb-net
     volumes:
       - gb-redis-data:/data
+
+# 启动ZLMediaKit
 
 volumes:
   gb-data:
