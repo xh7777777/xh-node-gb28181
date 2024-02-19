@@ -2,13 +2,14 @@ import sequelize from "../middleware/mysql";
 import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from "sequelize";
 import { v4 } from "uuid";
 
-interface UserModel extends Model<InferAttributes<UserModel>, InferCreationAttributes<UserModel>> {
+export interface UserModel extends Model<InferAttributes<UserModel>, InferCreationAttributes<UserModel>> {
   id?: string;
     username: string;
     password: string;
+    level: number;
 }
 
-const Device = sequelize.define<UserModel>(
+const User = sequelize.define<UserModel>(
   "user",
   {
     id: {
@@ -18,11 +19,15 @@ const Device = sequelize.define<UserModel>(
     },
     username: {
       type: DataTypes.STRING,
-      primaryKey: true,
     },
     password: {
       type: DataTypes.STRING,
     },
+    level: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+
   },
   {
     tableName: "user",
@@ -30,4 +35,4 @@ const Device = sequelize.define<UserModel>(
   }
 );
 
-export default Device;
+export default User;

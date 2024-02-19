@@ -11,3 +11,9 @@ export const SIP_CONFIG = {
     port: 15060,
     host: process.env.SIP_HOST || 'localhost'
 };
+
+export const HTTP_CONFIG = {
+    port: process.env.HTTP_PORT || 3000,
+    host: process.env.HTTP_HOST || 'localhost',
+    prefix: process.env.HTTP_PREFIX || '/api'
+}

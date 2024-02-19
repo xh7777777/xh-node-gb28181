@@ -5,6 +5,7 @@ const logger = logUtil("DB");
 // 先初始化sequelize实例再引model
 import sequelize from "../middleware/mysql";
 import Device from "../models/deviceModel";
+import User from "../models/userModel";
 
 export async function testConnection() {
   try {
@@ -19,7 +20,7 @@ export async function testConnection() {
 
 export async function syncModel() {
   try {
-    await Device.sync({ alter: true });
+    await User.sync({ force: true });
     logger.info("All models were synchronized successfully.");
   } catch (error) {
     logger.error("Unable to synchronize models:", error);
