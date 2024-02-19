@@ -24,4 +24,14 @@ userRouter.get(
   UserController.getUserInfo
 );
 
+// @ts-ignore
+userRouter.post(
+  "/delete",
+  jwtAuth({
+    secret: process.env.JWT_SECRET || "secret",
+  }),
+  koaAuth,
+  UserController.deleteUser
+);
+
 export default userRouter;

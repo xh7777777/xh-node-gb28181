@@ -1,7 +1,7 @@
 import { Context, Next } from 'koa';
 import { v4 } from 'uuid';
 import User from '../models/userModel';
-import { AuthFailed, generateToken, Existing } from '../utils/httpUtil';
+import { AuthFailed, generateToken, Existing, NotFound } from '../utils/httpUtil';
 import bcrypt from 'bcrypt';
 import { resolve } from '../utils/httpUtil';
 import logUtil from '../utils/logUtil';
@@ -65,25 +65,42 @@ export default class UserController {
     }
 
     static async getUserInfo (ctx: Context, next: Next) {
-        const token = ctx.header.authorization?.split(" ")[1] || "";
-        const username = getUserTokenInfoByToken(token);
-        if (!username) {
-            throw new AuthFailed("用户名不存在");
-        }
-        logger.info('username', username);
+        const { username, level } = ctx.state.user.dataValues;
+        ctx.body = resolve.json({
+            username,
+            level
+        });
+    }
+
+    static async deleteUser (ctx: Context, next: Next) {
+        const { level } = ctx.state.user.dataValues;
+        deleteUserValidator(ctx, next);
+        const { username } = ctx.request.body;
+        // 用户是否存在
         const user = await User.findOne({
             where: {
                 username
             }
         });
+
         if (!user) {
-            throw new AuthFailed("用户名不存在");
+            throw new NotFound("用户名不存在");
         }
-        const { level } = user.dataValues;
-        ctx.body = resolve.json({
-            username,
-            level
+
+        if (user.dataValues.level > 0) {
+            throw new AuthFailed("不能删除管理员账号");
+        }
+
+        if (level !== 1) {
+            throw new AuthFailed("必须是管理员账号，权限不足");
+        }
+        await User.destroy({
+            where: {
+                username
+            }
         });
+        ctx.body = resolve.success("删除成功");
+    
     }
 }
 
@@ -119,5 +136,14 @@ function loginValidator(ctx: Context, next: Next) {
         /^[a-zA-Z0-9_]{8,18}$/,
         "密码长度必须在8-18位之间，包含字符、数字和 _ "
       );
+  }
+
+function deleteUserValidator(ctx: Context, next: Next) {
+    ctx
+      .validateBody("username")
+      .required("用户名是必须的")
+      .isString()
+      .trim()
+      .isLength(4, 16, "用户名长度必须是4~16位");
   }
   
