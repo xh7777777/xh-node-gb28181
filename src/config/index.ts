@@ -9,7 +9,14 @@ export const MYSQL_CONFIG = {
 
 export const SIP_CONFIG = {
     port: 15060,
-    host: process.env.SIP_HOST || 'localhost'
+    host: process.env.SIP_HOST || 'localhost',
+    id: process.env.SIP_ID || '34020000002000000001',
+    realm: process.env.SIP_REALM || '3402000000',
+    password: process.env.SIP_PASSWORD || '12345678',
+    version: process.env.SIP_VERSION || '2.0',
+    protocol: process.env.SIP_PROTOCOL || 'UDP',
+    userAgent: process.env.SIP_USER_AGENT || '34020000002000000001',
+    maxForwards: process.env.SIP_MAX_FORWARDS || '70',
 };
 
 export const HTTP_CONFIG = {

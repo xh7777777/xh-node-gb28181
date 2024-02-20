@@ -6,6 +6,7 @@ import { getDeviceInfoFromSip } from "../../utils/SipUtil";
 import digest from "sip/digest";
 import logUtil from "../../utils/logUtil";
 const logger = logUtil("MessageHandler");
+import MessageEmitter from "../emitter/MessageEmitter";
 
 interface XmlContent {
   Notify: {
@@ -21,17 +22,29 @@ export default class MessageHandler {
   public static async handleMessage(req: SipRequest) {
     // 解析xml
     parseString(req.content, async (err, result: XmlContent) => {
-      const { CmdType } = result.Notify;
+      // @ts-ignore
+      logger.debug(`解析xml报文`, result.Response);
+      if (!result.Notify) {
+        return 
+      }
+      // 有时候返回的报文没有Notify字段而是Response字段
+      // @ts-ignore
+      const { CmdType } = result.Notify || result.Response;
       if (CmdType[0] === "Keepalive") {
         await MessageHandler.keepAlive(req);
+      }
+      if (CmdType[0] === "Catalog") {
+        logger.info("设备目录信息", result);
+        // todo 200响应
       }
     });
   }
 
   // 心跳处理
   private static async keepAlive(req: SipRequest) {
+    const newDevice = getDeviceInfoFromSip(req);
     const device = await DeviceController.getDeviceById(
-      getDeviceInfoFromSip(req)
+      newDevice
     );
     // 检测设备是否存在
     if (device === null) {
@@ -42,12 +55,12 @@ export default class MessageHandler {
       sip.send(resp);
       return;
     } else {
-      // 更新心跳时间
-      device.lastPulse = Date.now();
-      logger.debug(`设备心跳更新,device:${JSON.stringify(device)} ， ${Date.now()}`);
-      await DeviceController.setDeviceToRedis(device);
+      // 更新心跳时间及设备信息
+      newDevice.lastPulse = Date.now();
+      await DeviceController.setDeviceToRedis(newDevice);
     }
     const resp = sip.makeResponse(req, 200, "Ok");
+    const message = MessageEmitter.getDeviceInfo(newDevice);
     sip.send(resp);
   }
 

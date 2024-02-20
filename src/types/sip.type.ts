@@ -8,6 +8,19 @@ export interface SipServerConfig {
     recv?: (message: string, address: string) => void;
     level?: string;
   };
+  publicAddress?: string;
+  hostname?: string;
+  // 这个参数会传到tls.createServer的参数中
+  tls?: {
+    connect: (cleartextStream: any, socket: any, head: any) => void;
+  };
+  tls_port?: number;
+  // 为了支持websocket这个字段是必须的，它没有默认值
+  ws_port?: number;
+  // default 60480
+  maxBytesHeaders?: number;
+  // default 60480
+  maxContentLength?: number;
 }
 
 export interface SipRequest {
@@ -19,12 +32,12 @@ export interface SipRequest {
     to: {
         name: string | undefined;
         uri: string;
-        params: Object[];
+        params?: Object[] | Object;
     }
     from: {
         name: string | undefined;
         uri: string;
-        params: Object[];
+        params?: Object[] | Object;
     }
     "call-id": string;
     cseq: {
@@ -43,13 +56,18 @@ export interface SipRequest {
   content: string;
 }
 
+export interface SipResponse extends SipRequest {
+  status: number;
+  reason: string;
+}
+
 export interface SipVia {
     version: string;
     protocol: string;
     host: string;
     port: number;
     params: {
-        rport: string;
+        rport: number;
         branch: string;
         received: string;
     };

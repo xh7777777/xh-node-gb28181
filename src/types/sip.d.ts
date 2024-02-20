@@ -8,7 +8,7 @@ declare module "sip" {
     req: SipRequest,
     status: number,
     reason: string
-  ): SipRequest;
+  ): SipResponse;
 export function send(
     response: SipRequest,
 ): void;

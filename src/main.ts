@@ -19,7 +19,7 @@ client.connect().then(() => {
 
 //启动sip服务器，实例创建后自动启动
 new SipServer(SIP_CONFIG, async (req, remote) => {
-  console.log("SipServer received request: " );
+  console.log("SipServer received request: ", req);
   const { method } = req;
     if (method === "REGISTER") {
         await RegisterHandler.handleRegister(req);

@@ -6,6 +6,7 @@ const logger = logUtil("RegisterHandler");
 import { trimQuotString, getDeviceInfoFromSip } from "../../utils/SipUtil";
 import { DeviceController } from "../../controller/DeviceController";
 import { isExpire } from "../../utils/authUtil";
+import { SIP_CONFIG } from "../../config";
 
 export default class RegisterHandler {
   public static async handleRegister(req: SipRequest) {
@@ -17,20 +18,14 @@ export default class RegisterHandler {
     }
   }
   private static async makeRegisterResp(req: SipRequest): Promise<SipRequest> {
-    // 查询数据库获取用户信息 检查设备是否已经注册或过期
-    let userinfo = {
-      password: "123456abc",
-      session: {
-        realm: process.env.SIP_REALM || "",
-      },
-    };
+    const password = SIP_CONFIG.password;
+    const realm = SIP_CONFIG.realm;
     let resp;
     let expire = await this.checkRegisterExpire(req);
     if (!expire) {
       logger.info(`设备已经注册且未过期,uri:${req.headers.from.uri}`);
-      return sip.makeResponse(req, 200, "Ok");;
+      return sip.makeResponse(req, 200, "Ok");
     }
-
 
     // 存在验证
     if (req.headers.authorization) {
@@ -58,14 +53,14 @@ export default class RegisterHandler {
           req.headers.authorization[0].cnonce
         );
         const session = {
-          realm: userinfo.session.realm,
+          realm,
           nonce: req.headers.authorization[0].nonce,
         };
 
         // 校验数字摘要
         const check = digest.authenticateRequest(session, req, {
           user: req.headers.authorization[0].username,
-          password: userinfo.password,
+          password,
         });
         if (check) {
           logger.info(`成功授权,uri:${req.headers.from.uri}`);
@@ -78,15 +73,19 @@ export default class RegisterHandler {
       // 该方法会添加WWW-Authenticate头部， 返回401
       logger.info(`401需要授权,uri: ${req.headers.from.uri}`);
       resp = digest.challenge(
-        userinfo.session,
+        {
+          realm,
+        },
         sip.makeResponse(req, 401, "Unauthorized")
       );
     }
     return resp;
   }
 
-  private static async checkRegisterExpire(req: SipRequest): Promise<boolean>{
-    const device = await DeviceController.getDeviceById(getDeviceInfoFromSip(req));
+  private static async checkRegisterExpire(req: SipRequest): Promise<boolean> {
+    const device = await DeviceController.getDeviceById(
+      getDeviceInfoFromSip(req)
+    );
     return isExpire(device.lastRegisterTime, device.registerExpires);
   }
 }
