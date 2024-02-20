@@ -7,6 +7,7 @@ import digest from "sip/digest";
 import logUtil from "../../utils/logUtil";
 const logger = logUtil("MessageHandler");
 import MessageEmitter from "../emitter/MessageEmitter";
+import { DeviceInfoCmdTypeEnum } from "../../types/enum";
 
 interface XmlContent {
   Notify: {
@@ -24,16 +25,13 @@ export default class MessageHandler {
     parseString(req.content, async (err, result: XmlContent) => {
       // @ts-ignore
       logger.debug(`解析xml报文`, result.Response);
-      if (!result.Notify) {
-        return 
-      }
       // 有时候返回的报文没有Notify字段而是Response字段
       // @ts-ignore
       const { CmdType } = result.Notify || result.Response;
-      if (CmdType[0] === "Keepalive") {
+      if (CmdType[0] === DeviceInfoCmdTypeEnum.Keepalive) {
         await MessageHandler.keepAlive(req);
       }
-      if (CmdType[0] === "Catalog") {
+      if (CmdType[0] === DeviceInfoCmdTypeEnum.Catalog) {
         logger.info("设备目录信息", result);
         // todo 200响应
       }
@@ -60,7 +58,6 @@ export default class MessageHandler {
       await DeviceController.setDeviceToRedis(newDevice);
     }
     const resp = sip.makeResponse(req, 200, "Ok");
-    const message = MessageEmitter.getDeviceInfo(newDevice);
     sip.send(resp);
   }
 

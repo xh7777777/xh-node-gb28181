@@ -15,3 +15,7 @@ export function getDevice() {
   return request.get("/device");
 }
 
+export function getConfig() {
+  
+}
+

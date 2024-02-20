@@ -1,3 +1,5 @@
+import { sipMethodEnum, sipContentTypeEnum } from "./enum";
+
 export interface SipServerConfig {
   port: number;
   host: string;
@@ -24,7 +26,7 @@ export interface SipServerConfig {
 }
 
 export interface SipRequest {
-  method: string;
+  method: sipMethodEnum;
   uri: string;
   version: string;
   headers: {
@@ -45,7 +47,7 @@ export interface SipRequest {
         method: string;
     };
     contact?: Object[]
-    "content-type": string;
+    "content-type": sipContentTypeEnum;
     "content-length": number;
     'max-forwards': string;
     "user-agent": string;

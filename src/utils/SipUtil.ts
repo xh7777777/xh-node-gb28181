@@ -4,6 +4,7 @@ import { SIP_CONFIG } from "../config";
 import { v4 } from "uuid";
 import logUtil from "./logUtil";
 const logger = logUtil("SipUtil");
+import { sipContentTypeEnum, sipMethodEnum } from "../types/enum";
 
 export function trimQuotString(source: string) {
   return source.replace(/"/g, "");
@@ -46,20 +47,15 @@ interface IFrom {
 }
 
 export interface ISipMessage {
-  method: string;
+  method: sipMethodEnum;
   name?: string;
   deviceInfo: IRedisDevice;
   tag?: string;
   content: string;
   cesqNumber?: number;
-  contentType?: string;
+  contentType?: sipContentTypeEnum;
 }
 export class SipMessageHelper {
-  public static contentTypes = {
-    sdp: "application/sdp",
-    xml: "application/MANSCDP+xml",
-    none: "",
-  };
   private message: SipRequest;
   constructor({
     method,
@@ -75,7 +71,7 @@ export class SipMessageHelper {
       SIP_CONFIG.realm,
     ];
     const defaultCesqNumber = 20;
-    const defaultContentType = SipMessageHelper.contentTypes.xml;
+    const defaultContentType = sipContentTypeEnum.xml;
     const deviceUri = `sip:${deviceId}@${deviceInfo.sipHost}:${deviceInfo.sipPort}`;
     this.message = {
       method,

@@ -6,10 +6,11 @@ import { Builder } from "xml2js";
 import logUtil from "../../utils/logUtil";
 const logger = logUtil("MessageEmitter");
 import { SipMessageHelper, ISipMessage } from "../../utils/SipUtil";
+import { DeviceInfoCmdTypeEnum, sipMethodEnum, sipContentTypeEnum } from "../../types/enum";
 
 // 负责发送message
 export default class MessageEmitter {
-  public static getDeviceInfo(device: IRedisDevice): SipRequest {
+  public static getDeviceInfo(device: IRedisDevice, CmdType: DeviceInfoCmdTypeEnum): SipRequest {
     const [deviceId, deviceRealm] = device.deviceId.split("@");
     const xmlBuilder = new Builder({
       xmldec: {
@@ -20,7 +21,7 @@ export default class MessageEmitter {
     });
     const queryObj = {
       Query: {
-        CmdType: "Catalog",
+        CmdType,
         SN: v4(),
         DeviceID: deviceId,
       },
@@ -29,9 +30,9 @@ export default class MessageEmitter {
     const xml = xmlBuilder.buildObject(queryObj);
 
     const sipMessage: ISipMessage = {
-      method: "MESSAGE",
+      method: sipMethodEnum.message,
       content: xml + '\r\n\r\n',
-      contentType: SipMessageHelper.contentTypes.xml,
+      contentType: sipContentTypeEnum.xml,
       deviceInfo: device,
     };
     const sipMessageHelper = new SipMessageHelper(sipMessage);
