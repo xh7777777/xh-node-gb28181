@@ -6,7 +6,6 @@ import { getDeviceInfoFromSip } from "../../utils/SipUtil";
 import digest from "sip/digest";
 import logUtil from "../../utils/logUtil";
 const logger = logUtil("MessageHandler");
-import MessageEmitter from "../emitter/MessageEmitter";
 import { DeviceInfoCmdTypeEnum } from "../../types/enum";
 
 interface XmlContent {
@@ -24,7 +23,7 @@ export default class MessageHandler {
     // 解析xml
     parseString(req.content, async (err, result: XmlContent) => {
       // @ts-ignore
-      logger.debug(`解析xml报文`, result.Response);
+      logger.debug(`解析xml报文`, result);
       // 有时候返回的报文没有Notify字段而是Response字段
       // @ts-ignore
       const { CmdType } = result.Notify || result.Response;

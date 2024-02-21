@@ -3,22 +3,21 @@ import { SipRequest } from "../../types/sip.type";
 import { IRedisDevice } from "../../models/redis/device";
 import { v4 } from "uuid";
 import { Builder } from "xml2js";
-import logUtil from "../../utils/logUtil";
-const logger = logUtil("MessageEmitter");
 import { SipMessageHelper, ISipMessage } from "../../utils/SipUtil";
 import { DeviceInfoCmdTypeEnum, sipMethodEnum, sipContentTypeEnum } from "../../types/enum";
 
 // 负责发送message
-export default class MessageEmitter {
+export default class MessageGenerator {
+  public static xmlBuilder = new Builder({
+    xmldec: {
+      version: "1.0",
+      encoding: "GB2312",
+      standalone: true
+    }
+  })
+
   public static getDeviceInfo(device: IRedisDevice, CmdType: DeviceInfoCmdTypeEnum): SipRequest {
     const [deviceId, deviceRealm] = device.deviceId.split("@");
-    const xmlBuilder = new Builder({
-      xmldec: {
-        version: "1.0",
-        encoding: "GB2312",
-        standalone: true
-      },
-    });
     const queryObj = {
       Query: {
         CmdType,
@@ -27,7 +26,7 @@ export default class MessageEmitter {
       },
     };
 
-    const xml = xmlBuilder.buildObject(queryObj);
+    const xml = MessageGenerator.xmlBuilder.buildObject(queryObj);
 
     const sipMessage: ISipMessage = {
       method: sipMethodEnum.message,
