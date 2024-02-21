@@ -65,7 +65,8 @@ export default class UserController {
     }
 
     static async getUserInfo (ctx: Context, next: Next) {
-        const { username, level } = ctx.state.user.dataValues;
+        const username = ctx.state.username;
+        const level = ctx.state.level;
         ctx.body = resolve.json({
             username,
             level
@@ -73,7 +74,7 @@ export default class UserController {
     }
 
     static async deleteUser (ctx: Context, next: Next) {
-        const { level } = ctx.state.user.dataValues;
+       const level = ctx.state.level;
         deleteUserValidator(ctx, next);
         const { username } = ctx.request.body;
         // 用户是否存在

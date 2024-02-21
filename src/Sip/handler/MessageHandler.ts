@@ -7,6 +7,7 @@ import digest from "sip/digest";
 import logUtil from "../../utils/logUtil";
 const logger = logUtil("MessageHandler");
 import { DeviceInfoCmdTypeEnum } from "../../types/enum";
+import xml2js from "xml2js";
 
 interface XmlContent {
   Notify: {
@@ -22,17 +23,23 @@ export default class MessageHandler {
   public static async handleMessage(req: SipRequest) {
     // 解析xml
     parseString(req.content, async (err, result: XmlContent) => {
-      // @ts-ignore
-      logger.debug(`解析xml报文`, result);
       // 有时候返回的报文没有Notify字段而是Response字段
       // @ts-ignore
       const { CmdType } = result.Notify || result.Response;
+      if (!CmdType) {
+        logger.error("报文格式错误", result);
+        sip.send(sip.makeResponse(req, 400, "Bad Request"));
+      }
       if (CmdType[0] === DeviceInfoCmdTypeEnum.Keepalive) {
+        logger.info("处理心跳");
         await MessageHandler.keepAlive(req);
       }
       if (CmdType[0] === DeviceInfoCmdTypeEnum.Catalog) {
-        logger.info("设备目录信息", result);
+        // @ts-ignore
+        logger.info("设备目录信息", result.Response.DeviceList);
         // todo 200响应
+        // .$.Num, .Item
+        await MessageHandler.updateDeviceInfo(req);
       }
     });
   }
@@ -59,5 +66,12 @@ export default class MessageHandler {
     const resp = sip.makeResponse(req, 200, "Ok");
     sip.send(resp);
   }
+
+  private static async updateDeviceInfo(req: SipRequest) {
+    // const device = getDeviceInfoFromSip(req);
+    // await DeviceController.setDeviceToRedis(device);
+    sip.send(sip.makeResponse(req, 200, "Ok"));
+  }
+
 
 }

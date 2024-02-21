@@ -4,6 +4,6 @@ import { SIP_CONFIG } from '../config';
 
 export default class PlatformConfigController {
     public static async getPlatformConfig(ctx: Context, next: Next) {
-        resolve.json(SIP_CONFIG);
+        ctx.body = resolve.json(SIP_CONFIG);
     }
 }

@@ -1,28 +1,55 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { getUserInfo } from "../../apis";
 
-export const counterSlice = createSlice({
-  name: 'user',
+export const fetchUserInfo = createAsyncThunk("/user/info", async (token:string) => {
+  const res = await getUserInfo(token);
+  return res.data;
+});
+
+export const userSlice = createSlice({
+  name: "userInfo",
   initialState: {
-    value: 0
+    accessToken: "",
+    username: "请先登录",
+    user_type: 0,
+    isLogin: false,
   },
   reducers: {
-    increment: state => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
-      state.value += 1
+    onLogin: (state, action) => {
+      state.accessToken = action.payload.token;
+      state.username = action.payload.username;
+      state.isLogin = true;
+      state.user_type = action.payload.level;
     },
-    decrement: state => {
-      state.value -= 1
+    onLogout: (state, action) => {
+      (state.accessToken = ""),
+        (state.isLogin = false);
+      state.username = "请先登录";
+      state.user_type = 0;
     },
-    incrementByAmount: (state, action) => {
-      state.value += action.payload
-    }
-  }
-})
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchUserInfo.fulfilled, (state, action) => {
+        state.isLogin = true;
+        state.username = action.payload.data.username;
+        state.user_type = action.payload.data.type;
+      })
+      .addCase(fetchUserInfo.rejected, (state, action) => {
+        state.isLogin = false;
+      });
+  },
+});
 
-// Action creators are generated for each case reducer function
-export const { increment, decrement, incrementByAmount } = counterSlice.actions
+export const { onLogin,  onLogout } =
+  userSlice.actions;
 
-export default counterSlice.reducer
+export const selectIsLogin = (state:any) => state.userInfo.isLogin;
+
+export const selectAccessToken = (state:any) => state.userInfo.accessToken;
+
+export const selectUsername = (state:any) => state.userInfo.username;
+
+export const selectUserType = (state:any) => state.userInfo.user_type;
+
+export default userSlice.reducer;

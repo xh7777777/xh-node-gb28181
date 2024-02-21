@@ -1,4 +1,4 @@
-import { SipRequest } from "../../types/sip.type";
+import { SipRequest, SipResponse } from "../../types/sip.type";
 import digest from "sip/digest";
 import sip from "sip";
 import logUtil from "../../utils/logUtil";
@@ -7,17 +7,30 @@ import { trimQuotString, getDeviceInfoFromSip } from "../../utils/SipUtil";
 import { DeviceController } from "../../controller/DeviceController";
 import { isExpire } from "../../utils/authUtil";
 import { SIP_CONFIG } from "../../config";
+import MessageGenerator from "../generator/MessageGenerator";
+import { DeviceInfoCmdTypeEnum } from "../../types/enum";
 
 export default class RegisterHandler {
   public static async handleRegister(req: SipRequest) {
     const resp = await this.makeRegisterResp(req);
     if (resp) {
       sip.send(resp);
+      if (resp.status === 200) {
+        const device = getDeviceInfoFromSip(req);
+        // 更新设备信息到redis
+        await DeviceController.setDeviceToRedis(device);
+        // 发送获取设备详细信息
+        const deviceInfoReq = MessageGenerator.getDeviceInfo(
+          device,
+          DeviceInfoCmdTypeEnum.Catalog
+        );
+        sip.send(deviceInfoReq);
+      }
     } else {
       sip.send(sip.makeResponse(req, 500, "Server Internal Error"));
     }
   }
-  private static async makeRegisterResp(req: SipRequest): Promise<SipRequest> {
+  private static async makeRegisterResp(req: SipRequest): Promise<SipResponse> {
     const password = SIP_CONFIG.password;
     const realm = SIP_CONFIG.realm;
     let resp;
@@ -64,8 +77,6 @@ export default class RegisterHandler {
         });
         if (check) {
           logger.info(`成功授权,uri:${req.headers.from.uri}`);
-          // 更新设备信息到redis
-          await DeviceController.setDeviceToRedis(getDeviceInfoFromSip(req));
           resp = sip.makeResponse(req, 200, "Ok");
         }
       }

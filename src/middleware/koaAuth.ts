@@ -22,6 +22,7 @@ export default async function auth(ctx: Context, next: Next) {
   if (!res) {
     throw new AuthFailed("用户名不存在或权限不足1");
   }
-  ctx.state.user = res.dataValues;
+  ctx.state.username = res.dataValues.username;
+  ctx.state.level = res.dataValues.level;
   await next();
 }
