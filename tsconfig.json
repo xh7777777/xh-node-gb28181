@@ -12,7 +12,7 @@
       "typeRoots": ["./node_modules/@types", "./src/types"],
       "types": ["node"]
     },
-    "include": ["src", "src/**/*.ts", "src/**/*.d.ts"],
+    "include": ["src", "src/**/*.ts", "src/**/*.d.ts", "web_app/src/apis/request.ts"],
     "exclude": ["node_modules", "dist", "public"]
   }
   

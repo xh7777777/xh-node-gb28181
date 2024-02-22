@@ -1,17 +1,17 @@
 import LayoutWrapper from "../components/LayoutWrapper";
 import { Outlet } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { redirect } from "react-router-dom";
+import { Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 
 export default function Root() {
     const navigate = useNavigate();
     const status = useAuth();
     if (status === 'loading') {
-        return <div>Loading...</div>
+        return <Spin />
     } else if (status === 'unauthenticated') {
         navigate('/login');
-        return <div>Redirecting...</div>
+        return <div>Redirecting...<Spin></Spin></div>
     }
 
     return (

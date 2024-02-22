@@ -1,9 +1,10 @@
 import React from "react";
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Checkbox, Form, Input, Spin } from "antd";
 import { login } from "../apis";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { onLogin } from "../store/configure";
+import useAuth from "../hooks/useAuth";
 
 type FieldType = {
   username?: string;
@@ -15,6 +16,19 @@ function Login() {
   const [err, setErr] = React.useState<string>("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const status = useAuth();
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (status === "authenticated") {
+    navigate("/");
+  }
 
   const onFinish = async (values: any) => {
     const { username, password, remember } = values;

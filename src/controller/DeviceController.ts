@@ -22,9 +22,9 @@ export class DeviceController {
   public static async getDeviceList(ctx:Context, next:Next) {
     const value = await client.hGetAll("device");
     if (value) {
-      resolve.json(value);
+      ctx.body = resolve.json(value);
     } else {
-      resolve.json({}, '设备列表为空')
+      ctx.body = resolve.json({}, '设备列表为空')
     }
   }
 

@@ -1,15 +1,19 @@
-import axios from "axios";
-
-const request = axios.create({
-  baseURL:
-    import.meta.env.VITE_NODE_ENV === "development"
-      ? import.meta.env.VITE_PROD_URL
-      : import.meta.env.VITE_DEV_URL,
-  timeout: 5000,
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded",
-  },
-});
+import request from "./request";
+export async function register({
+  username,
+  password,
+  confirm,
+}: {
+  username: string;
+  password: string;
+  confirm: string;
+}) {
+  return await request.post("/user/register", {
+    username,
+    password,
+    confirm
+  });
+}
 
 export async function login({
   username,
@@ -32,16 +36,21 @@ export async function getUserInfo(token: string) {
   });
 }
 
-export async function getPlatformConfig(token: string) {
-  return await request.get("/config/list", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export async function deleteUser( username: string) {
+  return await request.post(
+    "/user/delete",
+    { username },
+  );
 }
 
-export function getDeviceList() {
-  return request.get("/device");
+export async function getPlatformConfig() {
+  return await request.get("/config/list");
 }
 
-export function getConfig() {}
+export async function getDeviceList() {
+  return await request.get("/device/list");
+}
+
+export async function getUserList() {
+  return await request.get("/user/list");
+}

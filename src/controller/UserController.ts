@@ -73,6 +73,13 @@ export default class UserController {
         });
     }
 
+    static async getUserList (ctx: Context, next: Next) {
+        const users = await User.findAll({
+            attributes: ["username", "level"]
+        });
+        ctx.body = resolve.json(users);
+    }
+
     static async deleteUser (ctx: Context, next: Next) {
        const level = ctx.state.level;
         deleteUserValidator(ctx, next);
@@ -88,11 +95,11 @@ export default class UserController {
             throw new NotFound("用户名不存在");
         }
 
-        if (user.dataValues.level > 0) {
+        if (user.dataValues.level === 1) {
             throw new AuthFailed("不能删除管理员账号");
         }
 
-        if (level !== 1) {
+        if (level != 1) {
             throw new AuthFailed("必须是管理员账号，权限不足");
         }
         await User.destroy({

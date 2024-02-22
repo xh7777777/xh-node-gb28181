@@ -25,6 +25,16 @@ userRouter.get(
 );
 
 // @ts-ignore
+userRouter.get(
+  "/list",
+  jwtAuth({
+    secret: process.env.JWT_SECRET || "secret",
+  }),
+  koaAuth,
+  UserController.getUserList
+);
+
+// @ts-ignore
 userRouter.post(
   "/delete",
   jwtAuth({

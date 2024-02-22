@@ -9,6 +9,7 @@ import MessageHandler from "./Sip/handler/MessageHandler";
 import client from "./middleware/redis";
 import logUtil from "./utils/logUtil";
 import app from "./httpServer";
+import User from "./models/userModel";
 
 const logger = logUtil("main");
 
@@ -17,8 +18,14 @@ client.connect().then(() => {
     logger.info("Redis connected");
 });
 
+const sipConfig = {
+    host: SIP_CONFIG.host,
+    port: SIP_CONFIG.port,
+    udp: SIP_CONFIG.protocol === "UDP" || SIP_CONFIG.protocol === "udp",
+    tcp: SIP_CONFIG.protocol === "TCP" || SIP_CONFIG.protocol === "tcp",
+}
 //启动sip服务器，实例创建后自动启动
-new SipServer(SIP_CONFIG, async (req, remote) => {
+new SipServer(sipConfig, async (req, remote) => {
   console.log("SipServer received request: ", req);
   const { method } = req;
     if (method === "REGISTER") {
@@ -32,6 +39,7 @@ new SipServer(SIP_CONFIG, async (req, remote) => {
 testConnection();
 //同步数据库模型
 // syncModel();
+
 
 //启动http服务器
 app.listen(HTTP_CONFIG.port, () => {
