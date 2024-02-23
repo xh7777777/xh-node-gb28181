@@ -9,7 +9,7 @@ import MessageHandler from "./Sip/handler/MessageHandler";
 import client from "./middleware/redis";
 import logUtil from "./utils/logUtil";
 import app from "./httpServer";
-import User from "./models/userModel";
+import sip from "sip";
 
 const logger = logUtil("main");
 
@@ -32,6 +32,8 @@ new SipServer(sipConfig, async (req, remote) => {
         await RegisterHandler.handleRegister(req);
     } else if (method === "MESSAGE") {
         await MessageHandler.handleMessage(req);
+    } else if (method === "BYE") {
+        sip.send(sip.makeResponse(req, 200, "Ok"));
     }
 });
 

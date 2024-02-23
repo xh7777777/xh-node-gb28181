@@ -32,10 +32,23 @@ services:
       - gb-redis-data:/data
 
 # 启动ZLMediaKit
+  gbzlm:
+    container_name: gbzlm
+    restart: unless-stopped
+    image: zlmediakit/zlmediakit:master
+    ports:
+      - "1935:1935"
+      - "8080:8080"
+      - "18000-18100:18000-18100/udp"
+    networks:
+      - gb-net
+    volumes:
+      - media-data:/opt/media
 
 volumes:
   gb-data:
   gb-redis-data:
+  media-data:
 
 networks:
   gb-net:

@@ -90,6 +90,7 @@ export class SipMessageHelper {
           realm: SIP_CONFIG.realm,
           tag,
         }),
+        contact: [SipMessageHelper.generateContact()],
         "call-id": SipMessageHelper.generateCallId(),
         cseq: SipMessageHelper.geneteCseq(
           defaultCesqNumber || cesqNumber,
@@ -104,8 +105,19 @@ export class SipMessageHelper {
     };
   }
 
+  public setHeader(key: string, value: any) {
+    // @ts-ignore
+    this.message.headers[key] = value;
+  }
+
   public getMessage() {
     return this.message;
+  }
+
+  public static generateContact() {
+    return {
+      uri: SipMessageHelper.generateLocalUri(),
+    };
   }
 
   public static generateFrom({ name, id, realm, tag }: IFrom) {
@@ -160,19 +172,48 @@ export class SipMessageHelper {
       method,
     };
   }
+
+  public static generateSdpContent({
+    channel,
+    mediaIp,
+    udpPort,
+    ssrc,
+  }: {
+    channel: string;
+    mediaIp: string;
+    udpPort: number;
+    ssrc: string;
+  }) {
+    return (
+      "v=0\r\n" +
+      `o=${channel} 0 0 IN IP4 ${mediaIp}\r\n` +
+      "s=Play\r\n" +
+      `c=IN IP4 ${mediaIp}\r\n` +
+      "t=0 0\r\n" +
+      `m=video ${udpPort} TCP/RTP/AVP 96 97 98\r\n` +
+      "a=setup:passive\r\n" +
+      "a=rtpmap:96 PS/90000\r\n" +
+      "a=rtpmap:97 MPEG4/90000\r\n" +
+      "a=rtpmap:98 H264/90000\r\n" +
+      "a=recvonly\r\n" +
+      "a=streamprofile:0\r\n" +
+      "a=streamnumber:0\r\n" +
+      `y=${ssrc}\r\n\r\n`
+    );
+  }
 }
 
-export function compare(obj1:SipRequest, obj2:SipRequest) {
+export function compare(obj1: SipRequest, obj2: SipRequest) {
   for (let key in obj1) {
     // @ts-ignore
     if (obj1[key] !== obj2[key]) {
       // @ts-ignore
-      if (typeof obj1[key] === 'object') {
+      if (typeof obj1[key] === "object") {
         // @ts-ignore
         compare(obj1[key], obj2[key]);
       } else {
-              // @ts-ignore
-      logger.info(`key:${key},obj1:${obj1[key]},obj2:${obj2[key]}`);
+        // @ts-ignore
+        logger.info(`key:${key},obj1:${obj1[key]},obj2:${obj2[key]}`);
         // @ts-ignore
       }
     }

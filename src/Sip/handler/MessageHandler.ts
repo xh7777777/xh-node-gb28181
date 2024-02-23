@@ -8,6 +8,7 @@ import logUtil from "../../utils/logUtil";
 const logger = logUtil("MessageHandler");
 import { DeviceInfoCmdTypeEnum } from "../../types/enum";
 import xml2js from "xml2js";
+import MessageEmitter from "../emitter/MessageEmitter";
 
 interface XmlContent {
   Notify: {
@@ -23,11 +24,9 @@ export default class MessageHandler {
   public static async handleMessage(req: SipRequest) {
     // 解析xml
     parseString(req.content, async (err, result: XmlContent) => {
-      // 有时候返回的报文没有Notify字段而是Response字段
       // @ts-ignore
       const { CmdType } = result.Notify || result.Response;
       if (!CmdType) {
-        logger.error("报文格式错误", result);
         sip.send(sip.makeResponse(req, 400, "Bad Request"));
       }
       if (CmdType[0] === DeviceInfoCmdTypeEnum.Keepalive) {
@@ -36,10 +35,23 @@ export default class MessageHandler {
       }
       if (CmdType[0] === DeviceInfoCmdTypeEnum.Catalog) {
         // @ts-ignore
-        logger.info("设备目录信息", result.Response.DeviceList);
-        // todo 200响应
+        // logger.info("设备目录信息", result.Response.DeviceList);
+        // todo 
         // .$.Num, .Item
-        await MessageHandler.updateDeviceInfo(req);
+        sip.send(sip.makeResponse(req, 200, "Ok"));
+      }
+      if (CmdType[0] === DeviceInfoCmdTypeEnum.DeviceInfo) {
+        // @ts-ignore
+        await MessageHandler.updateDeviceInfo(req, result.Response);
+        // @ts-ignore
+        // todo 
+        sip.send(sip.makeResponse(req, 200, "Ok"));
+      }
+      if (CmdType[0] === DeviceInfoCmdTypeEnum.DeviceStatus) {
+         // @ts-ignore
+        //  logger.info("设备状态信息", result.Response);
+        // todo 
+        sip.send(sip.makeResponse(req, 200, "Ok"));
       }
     });
   }
@@ -58,18 +70,19 @@ export default class MessageHandler {
       );
       sip.send(resp);
       return;
-    } else {
-      // 更新心跳时间及设备信息
-      newDevice.lastPulse = Date.now();
-      await DeviceController.setDeviceToRedis(newDevice);
-    }
+    } 
     const resp = sip.makeResponse(req, 200, "Ok");
     sip.send(resp);
   }
 
-  private static async updateDeviceInfo(req: SipRequest) {
-    // const device = getDeviceInfoFromSip(req);
-    // await DeviceController.setDeviceToRedis(device);
+  private static async updateDeviceInfo(req: SipRequest, content:any) {
+    const device = getDeviceInfoFromSip(req);
+    const { DeviceName = [], ManuFacturer = [], Model = [], Channel = []} = content;
+    device.deviceName = DeviceName[0];
+    device.manufacturer = ManuFacturer[0];
+    device.model = Model[0];
+    device.channelCount = Channel[0];
+    await DeviceController.setDeviceToRedis(device);
     sip.send(sip.makeResponse(req, 200, "Ok"));
   }
 

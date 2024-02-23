@@ -1,12 +1,9 @@
 import React from 'react'
-import { useSelector } from 'react-redux'
-import { selectAccessToken } from '../store/configure'
 import { useRequest } from 'ahooks'
 import { getDeviceList } from '../apis'
 import { Spin } from 'antd'
 
 function Device() {
-  const token = useSelector(selectAccessToken);
   const { data, error, loading } = useRequest(async () => await getDeviceList());
 
   if (loading) {
@@ -21,7 +18,7 @@ function Device() {
     throw error;
   }
 
-  console.log(data);
+  console.log(JSON.parse(Object.values(data?.data.data)[0] as string));
 
   return (
     <div>

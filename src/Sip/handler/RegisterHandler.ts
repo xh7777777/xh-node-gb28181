@@ -22,7 +22,7 @@ export default class RegisterHandler {
         // 发送获取设备详细信息
         const deviceInfoReq = MessageGenerator.getDeviceInfo(
           device,
-          DeviceInfoCmdTypeEnum.Catalog
+          DeviceInfoCmdTypeEnum.DeviceInfo
         );
         sip.send(deviceInfoReq);
       }

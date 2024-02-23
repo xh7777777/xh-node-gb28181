@@ -47,6 +47,7 @@ export interface SipRequest {
         method: string;
     };
     contact?: Object[]
+    subject?: string;
     "content-type": sipContentTypeEnum;
     "content-length": number;
     'max-forwards': string;

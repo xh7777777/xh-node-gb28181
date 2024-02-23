@@ -2,19 +2,12 @@ import sip from "sip";
 import { SipRequest } from "../../types/sip.type";
 import { IRedisDevice } from "../../models/redis/device";
 import { v4 } from "uuid";
-import { Builder } from "xml2js";
 import { SipMessageHelper, ISipMessage } from "../../utils/SipUtil";
 import { DeviceInfoCmdTypeEnum, sipMethodEnum, sipContentTypeEnum } from "../../types/enum";
+import { xmlBuilder } from "../../utils/xmlUtil";
 
 // 负责发送message
 export default class MessageGenerator {
-  public static xmlBuilder = new Builder({
-    xmldec: {
-      version: "1.0",
-      encoding: "GB2312",
-      standalone: true
-    }
-  })
 
   public static getDeviceInfo(device: IRedisDevice, CmdType: DeviceInfoCmdTypeEnum): SipRequest {
     const [deviceId, deviceRealm] = device.deviceId.split("@");
@@ -26,7 +19,7 @@ export default class MessageGenerator {
       },
     };
 
-    const xml = MessageGenerator.xmlBuilder.buildObject(queryObj);
+    const xml = xmlBuilder.buildObject(queryObj);
 
     const sipMessage: ISipMessage = {
       method: sipMethodEnum.message,
