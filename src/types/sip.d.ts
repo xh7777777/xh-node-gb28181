@@ -11,6 +11,7 @@ declare module "sip" {
   ): SipResponse;
 export function send(
     response: SipRequest,
+    callback?: (resp: SipResponse) => void
 ): void;
 }
 

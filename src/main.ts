@@ -6,6 +6,7 @@ import { SIP_CONFIG, HTTP_CONFIG } from "./config";
 import { testConnection, syncModel } from "./utils/dbUtil";
 import RegisterHandler from "./Sip/handler/RegisterHandler";
 import MessageHandler from "./Sip/handler/MessageHandler";
+import InviteHandler from "./Sip/handler/InviteHandler";
 import client from "./middleware/redis";
 import logUtil from "./utils/logUtil";
 import app from "./httpServer";
@@ -26,7 +27,7 @@ const sipConfig = {
 }
 //启动sip服务器，实例创建后自动启动
 new SipServer(sipConfig, async (req, remote) => {
-  console.log("SipServer received request: ", req);
+  logger.info("SipServer received request: ", req);
   const { method } = req;
     if (method === "REGISTER") {
         await RegisterHandler.handleRegister(req);
@@ -34,6 +35,8 @@ new SipServer(sipConfig, async (req, remote) => {
         await MessageHandler.handleMessage(req);
     } else if (method === "BYE") {
         sip.send(sip.makeResponse(req, 200, "Ok"));
+    } else if (method === "INVITE") {
+        await InviteHandler.responseInviteAck(req);
     }
 });
 

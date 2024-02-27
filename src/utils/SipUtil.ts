@@ -13,8 +13,10 @@ export function trimQuotString(source: string) {
 export function getDeviceInfoFromSip(req: SipRequest): IRedisDevice {
   const defaultExpire = parseInt(process.env.SIP_EXPIRE || "3600");
   const defaultPulseExpire = parseInt(process.env.SIP_PULSE_EXPIRE || "60");
+  const [ deviceId, deviceRealm ] = req.headers.from.uri.split(":")[1].split('@');
   return {
-    deviceId: req.headers.from.uri.split(":")[1],
+    deviceId: deviceId,
+    deviceRealm: deviceRealm,
     deviceName:
       req.headers.from.name === undefined
         ? "未命名设备"
@@ -55,6 +57,13 @@ export interface ISipMessage {
   cesqNumber?: number;
   contentType?: sipContentTypeEnum;
 }
+
+export interface ISdpItem {
+  channel: string;
+  mediaIp: string;
+  udpPort: number;
+  ssrc: string;
+}
 export class SipMessageHelper {
   private message: SipRequest;
   constructor({
@@ -66,10 +75,8 @@ export class SipMessageHelper {
     cesqNumber,
     contentType,
   }: ISipMessage) {
-    const [deviceId, deviceRealm] = deviceInfo?.deviceId.split("@") || [
-      SIP_CONFIG.id,
-      SIP_CONFIG.realm,
-    ];
+    const deviceId = deviceInfo.deviceId;
+    const deviceRealm = deviceInfo.deviceRealm || SIP_CONFIG.realm;
     const defaultCesqNumber = 20;
     const defaultContentType = sipContentTypeEnum.xml;
     const deviceUri = `sip:${deviceId}@${deviceInfo.sipHost}:${deviceInfo.sipPort}`;
@@ -178,18 +185,15 @@ export class SipMessageHelper {
     mediaIp,
     udpPort,
     ssrc,
-  }: {
-    channel: string;
-    mediaIp: string;
-    udpPort: number;
-    ssrc: string;
-  }) {
+  }: ISdpItem) {
+    // sdp参考文章，https://blog.csdn.net/uianster/article/details/125902301
     return (
       "v=0\r\n" +
       `o=${channel} 0 0 IN IP4 ${mediaIp}\r\n` +
       "s=Play\r\n" +
       `c=IN IP4 ${mediaIp}\r\n` +
       "t=0 0\r\n" +
+      // udpPort在国标中需要指定端口号m=<media><port><transport><fmt/payload type list>
       `m=video ${udpPort} TCP/RTP/AVP 96 97 98\r\n` +
       "a=setup:passive\r\n" +
       "a=rtpmap:96 PS/90000\r\n" +

@@ -9,6 +9,7 @@ import { isExpire } from "../../utils/authUtil";
 import { SIP_CONFIG } from "../../config";
 import MessageGenerator from "../generator/MessageGenerator";
 import { DeviceInfoCmdTypeEnum } from "../../types/enum";
+import { IRedisDevice } from "../../models/redis/device";
 
 export default class RegisterHandler {
   public static async handleRegister(req: SipRequest) {
@@ -27,6 +28,7 @@ export default class RegisterHandler {
         sip.send(deviceInfoReq);
       }
     } else {
+      logger.error("服务器内部错误", req, resp);
       sip.send(sip.makeResponse(req, 500, "Server Internal Error"));
     }
   }
@@ -34,11 +36,18 @@ export default class RegisterHandler {
     const password = SIP_CONFIG.password;
     const realm = SIP_CONFIG.realm;
     let resp;
-    let expire = await this.checkRegisterExpire(req);
-    if (!expire) {
-      logger.info(`设备已经注册且未过期,uri:${req.headers.from.uri}`);
-      return sip.makeResponse(req, 200, "Ok");
+    const device = await DeviceController.getDeviceById(
+      getDeviceInfoFromSip(req)
+    );
+    if (device) {
+      let expire = await this.checkRegisterExpire(device);
+      if (!expire) {
+        logger.info(`设备已经注册且未过期,uri:${req.headers.from.uri}`);
+        resp = sip.makeResponse(req, 200, "Ok");
+        return resp;
+      }
     }
+
 
     // 存在验证
     if (req.headers.authorization) {
@@ -78,6 +87,14 @@ export default class RegisterHandler {
         if (check) {
           logger.info(`成功授权,uri:${req.headers.from.uri}`);
           resp = sip.makeResponse(req, 200, "Ok");
+        } else {
+          logger.info(`授权失败,uri:${req.headers.from.uri}`);
+          resp = digest.challenge(
+            {
+              realm,
+            },
+            sip.makeResponse(req, 401, "Unauthorized")
+          );
         }
       }
     } else {
@@ -93,10 +110,10 @@ export default class RegisterHandler {
     return resp;
   }
 
-  private static async checkRegisterExpire(req: SipRequest): Promise<boolean> {
-    const device = await DeviceController.getDeviceById(
-      getDeviceInfoFromSip(req)
-    );
+  private static async checkRegisterExpire(device: IRedisDevice): Promise<boolean> {
+    if (!device.registerExpires || !device.lastRegisterTime) {
+      return true;
+    }
     return isExpire(device.lastRegisterTime, device.registerExpires);
   }
 }

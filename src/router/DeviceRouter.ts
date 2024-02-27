@@ -19,6 +19,9 @@ deviceRouter.get(
 );
 
 // @ts-ignore
+deviceRouter.post("/invite", DeviceController.inviteStream);
+
+// @ts-ignore
 // userRouter.get(
 //   "/info",
 //   jwtAuth({

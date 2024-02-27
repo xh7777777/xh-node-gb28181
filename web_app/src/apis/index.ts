@@ -54,3 +54,9 @@ export async function getDeviceList() {
 export async function getUserList() {
   return await request.get("/user/list");
 }
+
+export async function testInvite(deviceId: string) {
+  return await request.post("/device/invite", {
+    deviceId,
+  });
+}

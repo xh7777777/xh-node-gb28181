@@ -10,7 +10,7 @@ import { xmlBuilder } from "../../utils/xmlUtil";
 export default class MessageGenerator {
 
   public static getDeviceInfo(device: IRedisDevice, CmdType: DeviceInfoCmdTypeEnum): SipRequest {
-    const [deviceId, deviceRealm] = device.deviceId.split("@");
+    const { deviceId } = device;
     const queryObj = {
       Query: {
         CmdType,

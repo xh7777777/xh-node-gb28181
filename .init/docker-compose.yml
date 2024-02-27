@@ -36,10 +36,15 @@ services:
     container_name: gbzlm
     restart: unless-stopped
     image: zlmediakit/zlmediakit:master
+    env_file:
+      - .env
     ports:
       - "1935:1935"
       - "8080:8080"
-      - "18000-18100:18000-18100/udp"
+      - "8554:554"
+      - "10000:10000"
+      - "10000:10000/udp"
+      - "8000:8000/udp"
     networks:
       - gb-net
     volumes:
