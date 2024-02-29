@@ -9,21 +9,30 @@ declare module "sip" {
     status: number,
     reason: string
   ): SipResponse;
-export function send(
+  export function send(
     response: SipRequest,
     callback?: (resp: SipResponse) => void
-): void;
+  ): void;
+  export function parseUri(uri: string): {
+    user: string;
+    host: string;
+    port: number;
+    password: string | undefined;
+    schema: string;
+    params: { [key: string]: string };
+    headers: { [key: string]: string };
+  };
 }
 
 declare module "sip/digest" {
-    export function challenge(
-        session: { realm?: string, nonce?: string},
-        callback: SipRequest
-    ): string;
+  export function challenge(
+    session: { realm?: string; nonce?: string },
+    callback: SipRequest
+  ): string;
 
-    export function authenticateRequest(
-        realm: { realm: string },
-        req: SipRequest,
-        userinfo: { password: string, user: string}
-    ): boolean;
+  export function authenticateRequest(
+    realm: { realm: string },
+    req: SipRequest,
+    userinfo: { password: string; user: string }
+  ): boolean;
 }

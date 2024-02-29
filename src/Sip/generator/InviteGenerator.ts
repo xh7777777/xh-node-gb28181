@@ -5,18 +5,13 @@ import { IRedisDevice } from '../../models/redis/device';
 import { SipRequest } from "../../types/sip.type";
 
 export default class InviteGenerator {
-    public static invitePushStream(device: IRedisDevice, sdp?: ISdpItem): SipRequest  {
-        const sdpContent = SipMessageHelper.generateSdpContent({
-            udpPort: 8554,
-            channel: device.deviceId,
-            mediaIp: device.sipHost || "",
-            ssrc: '0100000001',
-        });
+    public static invitePushStream(device: IRedisDevice, sdp: string): SipRequest  {
         const sipMessage: ISipMessage = {
             method: sipMethodEnum.invite,
-            content:  sdpContent,
+            content:  sdp,
             contentType: sipContentTypeEnum.sdp,
             deviceInfo: device,
+            subject: true,
           };
 
         const sipMessageHelper = new SipMessageHelper(sipMessage);

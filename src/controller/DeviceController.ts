@@ -37,6 +37,7 @@ export class DeviceController {
     const { deviceId} = ctx.request.body;
     const device = await DeviceController.getDeviceById({deviceId});
     if (device) {
+      logger.info("发送invite push stream报文设备信息：", device);
       InviteEmitter.sendInviteStream(device);
       ctx.body = resolve.success('成功');
     } else {

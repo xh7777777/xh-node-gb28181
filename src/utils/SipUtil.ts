@@ -14,6 +14,7 @@ export function getDeviceInfoFromSip(req: SipRequest): IRedisDevice {
   const defaultExpire = parseInt(process.env.SIP_EXPIRE || "3600");
   const defaultPulseExpire = parseInt(process.env.SIP_PULSE_EXPIRE || "60");
   const [ deviceId, deviceRealm ] = req.headers.from.uri.split(":")[1].split('@');
+
   return {
     deviceId: deviceId,
     deviceRealm: deviceRealm,
@@ -56,13 +57,14 @@ export interface ISipMessage {
   content: string;
   cesqNumber?: number;
   contentType?: sipContentTypeEnum;
+  subject?: boolean;
 }
 
 export interface ISdpItem {
   channel: string;
-  mediaIp: string;
-  udpPort: number;
-  ssrc: string;
+  clientIp?: string;
+  udpPort?: number;
+  ssrc?: string;
 }
 export class SipMessageHelper {
   private message: SipRequest;
@@ -74,11 +76,11 @@ export class SipMessageHelper {
     content,
     cesqNumber,
     contentType,
+    subject
   }: ISipMessage) {
     const deviceId = deviceInfo.deviceId;
     const deviceRealm = deviceInfo.deviceRealm || SIP_CONFIG.realm;
     const defaultCesqNumber = 20;
-    const defaultContentType = sipContentTypeEnum.xml;
     const deviceUri = `sip:${deviceId}@${deviceInfo.sipHost}:${deviceInfo.sipPort}`;
     this.message = {
       method,
@@ -103,13 +105,18 @@ export class SipMessageHelper {
           defaultCesqNumber || cesqNumber,
           method
         ),
-        "content-type": contentType || defaultContentType,
         "content-length": content.length,
         "max-forwards": SIP_CONFIG.maxForwards,
         "user-agent": SIP_CONFIG.userAgent,
       },
       content,
     };
+    if (contentType) {
+      this.setHeader("content-type", contentType);
+    }
+    if (subject) {
+      this.setHeader("subject", SipMessageHelper.generateSubject(deviceId));
+    }
   }
 
   public setHeader(key: string, value: any) {
@@ -119,6 +126,10 @@ export class SipMessageHelper {
 
   public getMessage() {
     return this.message;
+  }
+
+  public static generateSubject(deviceId:string) {
+    return `${deviceId}:1,${SIP_CONFIG.id}:0`
   }
 
   public static generateContact() {
@@ -182,28 +193,31 @@ export class SipMessageHelper {
 
   public static generateSdpContent({
     channel,
-    mediaIp,
+    clientIp,
     udpPort,
     ssrc,
   }: ISdpItem) {
+    clientIp = clientIp || SIP_CONFIG.host;
+    udpPort = udpPort || 10000;
     // sdp参考文章，https://blog.csdn.net/uianster/article/details/125902301
-    return (
-      "v=0\r\n" +
-      `o=${channel} 0 0 IN IP4 ${mediaIp}\r\n` +
-      "s=Play\r\n" +
-      `c=IN IP4 ${mediaIp}\r\n` +
-      "t=0 0\r\n" +
-      // udpPort在国标中需要指定端口号m=<media><port><transport><fmt/payload type list>
-      `m=video ${udpPort} TCP/RTP/AVP 96 97 98\r\n` +
-      "a=setup:passive\r\n" +
-      "a=rtpmap:96 PS/90000\r\n" +
-      "a=rtpmap:97 MPEG4/90000\r\n" +
-      "a=rtpmap:98 H264/90000\r\n" +
-      "a=recvonly\r\n" +
-      "a=streamprofile:0\r\n" +
-      "a=streamnumber:0\r\n" +
-      `y=${ssrc}\r\n\r\n`
-    );
+    const res = "v=0\r\n" +
+    `o=${channel} 0 0 IN IP4 ${clientIp}\r\n` +
+    "s=Play\r\n" +
+    `c=IN IP4 ${clientIp}\r\n` +
+    "t=0 0\r\n" +
+    // udpPort在国标中需要指定端口号m=<media><port><transport><fmt/payload type list>
+    `m=video ${udpPort} TCP/RTP/AVP 96 97 98\r\n` +
+    "a=setup:passive\r\n" +
+    "a=rtpmap:96 PS/90000\r\n" +
+    "a=rtpmap:97 MPEG4/90000\r\n" +
+    "a=rtpmap:98 H264/90000\r\n" +
+    "a=recvonly\r\n" +
+    "a=streamprofile:0\r\n" +
+    "a=streamnumber:0\r\n";
+    if (ssrc) {
+      return res + `y=${ssrc}\r\n`;
+    }
+    return res;
   }
 }
 
