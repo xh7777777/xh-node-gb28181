@@ -4,7 +4,7 @@ export const MYSQL_CONFIG = {
     password: process.env.DATABASE_PASSWORD,
     database: process.env.DATABASE_DATABASE,
     charset: "utf8mb4",
-    port: process.env.DATABASE_PORT || 3306,
+    port: process.env.DATABASE_PORT || 13306,
 };
 
 export const SIP_CONFIG = {
