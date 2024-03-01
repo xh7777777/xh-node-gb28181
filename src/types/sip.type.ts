@@ -34,12 +34,12 @@ export interface SipRequest {
     to: {
         name: string | undefined;
         uri: string;
-        params?: Object[] | Object;
+        params?: toFromParams
     }
     from: {
         name: string | undefined;
         uri: string;
-        params?: Object[] | Object;
+        params?: toFromParams
     }
     "call-id": string;
     cseq: {
@@ -56,7 +56,7 @@ export interface SipRequest {
     "www-authenticate"?: string;
     authorization?: SipAuth[]
   };
-  content: string;
+  content?: string;
 }
 
 export interface SipResponse extends SipRequest {
@@ -98,4 +98,8 @@ export interface SipAuth {
     qop: string;
     nc: string;
     cnonce: string;
+}
+
+export interface toFromParams {
+  tag?: string
 }

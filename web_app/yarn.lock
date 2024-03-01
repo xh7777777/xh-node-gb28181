@@ -277,16 +277,6 @@
   resolved "https://registry.npmmirror.com/@ctrl/tinycolor/-/tinycolor-3.6.1.tgz#b6c75a56a1947cc916ea058772d666a2c8932f31"
   integrity sha512-SITSV6aIXsuVNV3f3O0f2n/cgyEDWoSqtZMYiAmcsYHydcKrOz3gUxB/iXd/Qf08+IZX4KpgNbvUdMBmWz+kcA==
 
-"@cycjimmy/awesome-js-funcs@^1.0.1":
-  version "1.1.1"
-  resolved "https://registry.npmmirror.com/@cycjimmy/awesome-js-funcs/-/awesome-js-funcs-1.1.1.tgz#a4d4fdc8ebf55f5f1a723b45276feea41f9af454"
-  integrity sha512-3e9BFAW8SWZ69frWE9a/QkKWM1+rcqiDsVwr1e0eVqVt5Fet1JtpMD4A+reCb6PUBCvFiSVrHDtDyB+Rxoxm0Q==
-
-"@cycjimmy/sass-lib@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.npmmirror.com/@cycjimmy/sass-lib/-/sass-lib-0.1.0.tgz#4b534ce1ba2e61f0efb184c42a64e74dd60fe952"
-  integrity sha512-Oli6KvYFIpvRxrD8ntfETMi+YtRQEgrZkFv6JPs9PING/B1kr8AhBNbcw9MklA2HapSX70/3dn3BmsVfLBzEjg==
-
 "@emotion/hash@^0.8.0":
   version "0.8.0"
   resolved "https://registry.npmmirror.com/@emotion/hash/-/hash-0.8.0.tgz#bbbff68978fefdbe68ccb533bc8cbe1d1afb5413"
@@ -1742,14 +1732,6 @@ jsesc@^2.5.1:
   version "2.5.2"
   resolved "https://registry.npmmirror.com/jsesc/-/jsesc-2.5.2.tgz#80564d2e483dacf6e8ef209650a67df3f0c283a4"
   integrity sha512-OYu7XEzjkCQ3C5Ps3QIZsQfNpqoJyZZA99wd9aWd05NCtC5pWOkShK2mkL6HXQR6/Cy2lbNdPlZBpuQHXE63gA==
-
-jsmpeg-player@^3.0.3:
-  version "3.0.3"
-  resolved "https://registry.npmmirror.com/jsmpeg-player/-/jsmpeg-player-3.0.3.tgz#ed7ee46197cd749729c237359685f02566fac227"
-  integrity sha512-23lQWpf9lWOVCibVevQRqRXKex++QTB/JPcJCdCGf3AzdcJVB7L4io5EXfST80RMOGt9p1dcAvJDOKhqOUYl+Q==
-  dependencies:
-    "@cycjimmy/awesome-js-funcs" "^1.0.1"
-    "@cycjimmy/sass-lib" "^0.1.0"
 
 json-buffer@3.0.1:
   version "3.0.1"

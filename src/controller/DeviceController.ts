@@ -1,6 +1,6 @@
 import { SipRequest } from "../types/sip.type";
 import { getDeviceInfoFromSip } from '../utils/SipUtil';
-import { IRedisDevice } from "../models/redis/device";
+import { IRedisDevice, IDeviceSessionCache } from "../models/redis/device";
 import client from "../middleware/redis";
 import logUtil from "../utils/logUtil";
 const logger = logUtil("DeviceController");
@@ -24,6 +24,13 @@ export class DeviceController {
     await client.hSet("device", key, value);
   }
 
+  public static async setSessionToRedis(session: IDeviceSessionCache) {
+    const key = `${session.deviceId}@${session.channelId}`
+    const value = JSON.stringify(session);
+    // 设置过期时间 10分钟
+    await client.hSet("session", key, value);
+  }
+
   public static async getDeviceList(ctx:Context, next:Next) {
     const value = await client.hGetAll("device");
     if (value) {
@@ -31,6 +38,15 @@ export class DeviceController {
     } else {
       ctx.body = resolve.json({}, '设备列表为空')
     }
+  }
+
+  public static async deleteSession(deviceId: string, channelId: number) {
+    await client.hDel("session", `${deviceId}@${channelId}`);
+  }
+
+  public static async getSession(deviceId: string) {
+    const value = await client.hGet("session", deviceId);
+    return value === undefined ? null : JSON.parse(value);
   }
 
   public static async inviteStream(ctx:Context, next:Next) {

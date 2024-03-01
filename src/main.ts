@@ -28,6 +28,7 @@ const sipConfig = {
 //启动sip服务器，实例创建后自动启动
 new SipServer(sipConfig, async (req, remote) => {
   logger.info("SipServer received request: ", req);
+  logger.info("SipServer received remote: ", req.headers.from.params, req.headers.to.params)
 
   const { method } = req;
   if (method === "REGISTER") {

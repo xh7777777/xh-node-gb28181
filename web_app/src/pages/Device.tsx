@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRequest } from 'ahooks'
-import { getDeviceList, testInvite } from '../apis'
+import { getDeviceList, testInvite, closeInvite } from '../apis'
 import { Spin } from 'antd'
 import { Button } from 'antd'
 
@@ -9,6 +9,11 @@ function Device() {
 
   async function inviteStream(deviceId: string) {
     const res = await testInvite(deviceId);
+    console.log(res);
+  }
+
+  async function closeStream(deviceId: string, channelId: string) {
+    const res = await closeInvite(deviceId, channelId);
     console.log(res);
   }
 
@@ -32,7 +37,9 @@ function Device() {
           <Button onClick={async () => await inviteStream(deviceList.deviceId)}>
             测试拉流
           </Button>
-
+          <Button onClick={async () => await closeStream(deviceList.deviceId, deviceList.channelCount)}>
+            发送bye停止推流
+          </Button>
     </div>
 
   )

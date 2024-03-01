@@ -14,7 +14,7 @@ services:
       MYSQL_PASSWORD: ${DATABASE_PASSWORD}
       MYSQL_DATABASE: ${DATABASE_DATABASE}
     volumes:
-      - gb-data:/var/lib/mysql
+      - gb-mysql-data:/var/lib/mysql
     ports:
       - "13306:3306"
     networks:
@@ -51,7 +51,7 @@ services:
       - media-data:/opt/media
 
 volumes:
-  gb-data:
+  gb-mysql-data:
   gb-redis-data:
   media-data:
 

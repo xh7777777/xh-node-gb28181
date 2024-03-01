@@ -14,3 +14,12 @@ export interface IRedisDevice {
     pulseExpires?: number;
 }
 
+export interface IDeviceSessionCache {
+    deviceId: string;
+    channelId: number;
+    callId: string;
+    cseqNum: number;
+    toTag: string;
+    fromTag: string;
+}
+

@@ -60,3 +60,10 @@ export async function testInvite(deviceId: string) {
     deviceId,
   });
 }
+
+export async function closeInvite(deviceId: string, channelId: string) {
+  return await request.post("/media/closeInvite", {
+    deviceId,
+    channelId,
+  });
+}

@@ -23,7 +23,7 @@ interface XmlContent {
 export default class MessageHandler {
   public static async handleMessage(req: SipRequest) {
     // 解析xml
-    parseString(req.content, async (err, result: XmlContent) => {
+    parseString(req.content || "", async (err, result: XmlContent) => {
       // @ts-ignore
       const { CmdType } = result.Notify || result.Response;
       if (!CmdType) {

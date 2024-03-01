@@ -54,10 +54,14 @@ export interface ISipMessage {
   name?: string;
   deviceInfo: IRedisDevice;
   tag?: string;
-  content: string;
+  content?: string;
   cesqNumber?: number;
   contentType?: sipContentTypeEnum;
   subject?: boolean;
+  callId?: string;
+  channelId?: number;
+  toTag?: string;
+  fromTag?: string;
 }
 
 export interface ISdpItem {
@@ -76,12 +80,19 @@ export class SipMessageHelper {
     content,
     cesqNumber,
     contentType,
-    subject
+    subject,
+    callId,
+    channelId,
+    toTag,
+    fromTag
   }: ISipMessage) {
     const deviceId = deviceInfo.deviceId;
     const deviceRealm = deviceInfo.deviceRealm || SIP_CONFIG.realm;
     const defaultCesqNumber = 20;
     const deviceUri = `sip:${deviceId}@${deviceInfo.sipHost}:${deviceInfo.sipPort}`;
+    const callIdStr = callId || SipMessageHelper.generateCallId();
+    const contentStr = content || "";
+
     this.message = {
       method,
       uri: deviceUri,
@@ -100,22 +111,34 @@ export class SipMessageHelper {
           tag,
         }),
         contact: [SipMessageHelper.generateContact()],
-        "call-id": SipMessageHelper.generateCallId(),
+        "call-id": callIdStr,
         cseq: SipMessageHelper.geneteCseq(
           defaultCesqNumber || cesqNumber,
           method
         ),
-        "content-length": content.length,
+        "content-length": contentStr.length,
         "max-forwards": SIP_CONFIG.maxForwards,
         "user-agent": SIP_CONFIG.userAgent,
       },
-      content,
     };
+    if (content) {
+      this.message.content = content;
+    }
+    if (toTag) {
+      this.message.headers.to.params = {
+        tag: toTag,
+      };
+    }
+    if (fromTag) {
+      this.message.headers.from.params = {
+        tag: fromTag,
+      };
+    }
     if (contentType) {
       this.setHeader("content-type", contentType);
     }
     if (subject) {
-      this.setHeader("subject", SipMessageHelper.generateSubject(deviceId));
+      this.setHeader("subject", SipMessageHelper.generateSubject(deviceId, channelId || 1));
     }
   }
 
@@ -128,8 +151,9 @@ export class SipMessageHelper {
     return this.message;
   }
 
-  public static generateSubject(deviceId:string) {
-    return `${deviceId}:1,${SIP_CONFIG.id}:0`
+  public static generateSubject(deviceId:string, channelId?:number) {
+    // 设备ID:通道号,平台ID:0
+    return `${deviceId}:${channelId},${SIP_CONFIG.id}:0`
   }
 
   public static generateContact() {
