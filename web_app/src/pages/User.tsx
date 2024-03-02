@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { selectUserType } from "../store/configure";
 import { useRequest } from "ahooks";
 import { getUserList, deleteUser, register } from "../apis";
+import { UserDataType } from "../data/tableData";
 import {
   Spin,
   Table,
@@ -13,13 +14,6 @@ import {
   Form,
   Input,
 } from "antd";
-
-interface DataType {
-  key: string;
-  no: number;
-  username: string;
-  userType: string;
-}
 
 type FieldType = {
   username?: string;
@@ -65,7 +59,7 @@ function User() {
     setRegisterModalOpen(false);
   };
 
-  const columns: TableProps<DataType>["columns"] = [
+  const columns: TableProps<UserDataType>["columns"] = [
     {
       title: "序号",
       dataIndex: "no",
@@ -97,7 +91,7 @@ function User() {
       ),
     },
   ];
-  const userList: DataType[] = data?.data?.data?.map(
+  const userList: UserDataType[] = data?.data?.data?.map(
     (item: { username: string; level: number }, index: number) => ({
       key: item.username,
       no: index + 1,

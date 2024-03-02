@@ -7,6 +7,7 @@ import User from "../pages/User";
 import Config from "../pages/Config";
 import ErrorPage from "./error-page";
 import Login from "../pages/Login";
+import DeviceChannel from "../pages/DeviceChannel";
 
 export default createBrowserRouter([
     {

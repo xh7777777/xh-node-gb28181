@@ -10,7 +10,7 @@ export interface UserModel extends Model<InferAttributes<UserModel>, InferCreati
 }
 
 const User = sequelize.define<UserModel>(
-  "user",
+  "admin",
   {
     id: {
       type: DataTypes.UUID,
@@ -30,7 +30,7 @@ const User = sequelize.define<UserModel>(
 
   },
   {
-    tableName: "user",
+    tableName: "admin",
     timestamps: true,
   }
 );

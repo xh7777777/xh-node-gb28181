@@ -23,3 +23,8 @@ export interface IDeviceSessionCache {
     fromTag: string;
 }
 
+export interface IDeviceChannel {
+    deviceId: string;
+    channelId: number;
+}
+

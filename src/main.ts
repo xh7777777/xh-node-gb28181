@@ -44,7 +44,7 @@ new SipServer(sipConfig, async (req, remote) => {
 
 //测试数据库连接
 testConnection();
-//同步数据库模型
+// //同步数据库模型
 // syncModel();
 
 //启动http服务器

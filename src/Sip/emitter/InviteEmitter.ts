@@ -21,6 +21,7 @@ export default class InviteEmitter {
 
         sip.send(message, function(res:SipRequest) {
             // const ackMessage = AckGenerator.ackInviteSdp(res, sdpContent, device);
+            logger.info("invite response: ", res);
             const ackMessage = AckGenerator.generateCommonAck(res, device);
             ackMessage.headers['call-id'] = res.headers['call-id'];
             ackMessage.headers.to = res.headers.to;

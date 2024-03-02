@@ -16,6 +16,7 @@
     "@types/koa-router": "^7.4.8",
     "@types/node": "^20.11.17",
     "@types/uuid": "^9.0.8",
+    "@types/ws": "^8.5.10",
     "@types/xml2js": "^0.4.14",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
@@ -37,6 +38,7 @@
     "redis": "^4.6.13",
     "sequelize": "^6.37.0",
     "sip": "^0.0.6",
+    "ws": "^8.16.0",
     "xml2js": "^0.6.2"
   }
 }
