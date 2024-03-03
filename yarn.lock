@@ -239,6 +239,15 @@
   dependencies:
     "@types/koa" "*"
 
+"@types/koa-websocket@^5.0.10":
+  version "5.0.10"
+  resolved "https://registry.npmmirror.com/@types/koa-websocket/-/koa-websocket-5.0.10.tgz#71c8fbfe9ae449d2bccf4a02bafb0d981537730f"
+  integrity sha512-yaqbFuyrw4eFchCHdOiyF1uhSe0nRv6xFAvVlxoG8Fq2/h+0IDjka3DyN2hJt29m6jr3+nlgsPTGh/Hd/tZmIg==
+  dependencies:
+    "@types/koa" "*"
+    "@types/koa-compose" "*"
+    "@types/ws" "*"
+
 "@types/koa@*", "@types/koa@^2.13.5":
   version "2.14.0"
   resolved "https://registry.npmmirror.com/@types/koa/-/koa-2.14.0.tgz#8939e8c3b695defc12f2ef9f38064509e564be18"
@@ -322,7 +331,7 @@
   resolved "https://registry.npmmirror.com/@types/validator/-/validator-13.11.9.tgz#adfe96520b437a0eaa798a475877bf2f75ee402d"
   integrity sha512-FCTsikRozryfayPuiI46QzH3fnrOoctTjvOYZkho9BTFLCOZ2rgZJHMOVgCOfttjPJcgOx52EpkY0CMfy87MIw==
 
-"@types/ws@^8.5.10":
+"@types/ws@*", "@types/ws@^8.5.10":
   version "8.5.10"
   resolved "https://registry.npmmirror.com/@types/ws/-/ws-8.5.10.tgz#4acfb517970853fa6574a3a6886791d04a396787"
   integrity sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==
@@ -1119,6 +1128,16 @@ koa-unless@^1.0.7:
   resolved "https://registry.npmmirror.com/koa-unless/-/koa-unless-1.0.7.tgz#b9df375e2b4da3043918d48622520c2c0b79f032"
   integrity sha512-NKiz+nk4KxSJFskiJMuJvxeA41Lcnx3d8Zy+8QETgifm4ab4aOeGD3RgR6bIz0FGNWwo3Fz0DtnK77mEIqHWxA==
 
+koa-websocket@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.npmmirror.com/koa-websocket/-/koa-websocket-7.0.0.tgz#29e77ccebf8621f00bf8db988275561645187ad3"
+  integrity sha512-MsHUFKqA4+j+0dpPKWtsvZfnpQ1NcgF+AaTZQZ4B3Xj/cWK31qqmKx9HnA5Gw1LV2aIDzqwy0IDBsZYRurTUAg==
+  dependencies:
+    co "^4.6.0"
+    debug "^4.3.4"
+    koa-compose "^4.1.0"
+    ws "^8.5.0"
+
 koa@^2.15.0:
   version "2.15.0"
   resolved "https://registry.npmmirror.com/koa/-/koa-2.15.0.tgz#d24ae1b0ff378bf12eb3df584ab4204e4c12ac2b"
@@ -1907,7 +1926,7 @@ ws@^6.1.0:
   dependencies:
     async-limiter "~1.0.0"
 
-ws@^8.16.0:
+ws@^8.16.0, ws@^8.5.0:
   version "8.16.0"
   resolved "https://registry.npmmirror.com/ws/-/ws-8.16.0.tgz#d1cd774f36fbc07165066a60e40323eab6446fd4"
   integrity sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==

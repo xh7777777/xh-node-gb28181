@@ -8,6 +8,7 @@ import Config from "../pages/Config";
 import ErrorPage from "./error-page";
 import Login from "../pages/Login";
 import DeviceChannel from "../pages/DeviceChannel";
+import Main from "../pages/Main";
 
 export default createBrowserRouter([
     {
@@ -15,6 +16,11 @@ export default createBrowserRouter([
         element: <Root />,
         errorElement: <ErrorPage />,
         children: [
+            {
+                path: "/",
+                element: <Main />,
+                errorElement: <ErrorPage />,
+            },
             {
                 path: "/device",
                 element: <Device />,
