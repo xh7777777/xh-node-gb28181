@@ -51,6 +51,15 @@ export async function getDeviceList() {
   return await request.get("/device/list");
 }
 
+export async function getChannelList(deviceId: string) {
+  return await request.get("/device/channel", {
+    params: {
+      deviceId,
+    },
+  });
+}
+
+
 export async function getUserList() {
   return await request.get("/user/list");
 }

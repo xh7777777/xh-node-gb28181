@@ -2,13 +2,15 @@ import {
     createBrowserRouter,
   } from "react-router-dom";
 import Root from "../pages/root";
-import Device from "../pages/Device";
+import DeviceList from "../pages/DeviceList";
 import User from "../pages/User";
 import Config from "../pages/Config";
 import ErrorPage from "./error-page";
 import Login from "../pages/Login";
 import DeviceChannel from "../pages/DeviceChannel";
 import Main from "../pages/Main";
+import Device from "../pages/Device";
+import VideoPlayer from "../pages/VideoPlayer";
 
 export default createBrowserRouter([
     {
@@ -27,8 +29,18 @@ export default createBrowserRouter([
                 errorElement: <ErrorPage />,
                 children: [
                     {
+                        path: "/device",
+                        element: <DeviceList />,
+                        errorElement: <ErrorPage />,
+                    },
+                    {
                         path: "/device/channel",
                         element: <DeviceChannel />,
+                        errorElement: <ErrorPage />,
+                    },
+                    {
+                        path: "/device/channel/video",
+                        element: <VideoPlayer />,
                         errorElement: <ErrorPage />,
                     }
                 ]

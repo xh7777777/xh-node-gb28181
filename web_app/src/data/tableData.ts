@@ -14,4 +14,11 @@ export  interface DeviceDataType {
     channelCount: number;
     deviceName: string;
   }
+
+export interface DeviceChannelDataType {
+    index: number;
+    key: string;
+    channelId: string;
+    channelName: string;
+}
   
