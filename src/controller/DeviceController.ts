@@ -1,6 +1,6 @@
 import { SipRequest } from "../types/sip.type";
 import { getDeviceInfoFromSip } from '../utils/SipUtil';
-import { IRedisDevice, IDeviceSessionCache } from "../models/redis/device";
+import { IRedisDevice, IDeviceSessionCache, IDeviceChannel } from "../models/redis/device";
 import client from "../middleware/redis";
 import logUtil from "../utils/logUtil";
 const logger = logUtil("DeviceController");

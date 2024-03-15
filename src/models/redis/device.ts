@@ -21,10 +21,15 @@ export interface IDeviceSessionCache {
     cseqNum: number;
     toTag: string;
     fromTag: string;
+    rtspUrl?: string;
+    rtpPort?: number;
 }
 
 export interface IDeviceChannel {
     deviceId: string;
     channelId: number;
+    channelName: string;
+    rtpUrl: string;
+    rtpPort: number;
 }
 

@@ -2,7 +2,7 @@
 require("dotenv").config();
 
 import SipServer from "./Sip";
-import { SIP_CONFIG, HTTP_CONFIG } from "./config";
+import { SIP_CONFIG, HTTP_CONFIG, WEBSOCKET_CONFIG } from "./config";
 import { testConnection, syncModel } from "./utils/dbUtil";
 import RegisterHandler from "./Sip/handler/RegisterHandler";
 import MessageHandler from "./Sip/handler/MessageHandler";
@@ -28,7 +28,6 @@ const sipConfig = {
 //启动sip服务器，实例创建后自动启动
 new SipServer(sipConfig, async (req, remote) => {
   logger.info("SipServer received request: ", req);
-  logger.info("SipServer received remote: ", req.headers.from.params, req.headers.to.params)
 
   const { method } = req;
   if (method === "REGISTER") {
@@ -50,4 +49,7 @@ testConnection();
 //启动http服务器
 app.listen(HTTP_CONFIG.port, () => {
   logger.info(`Http Server started at ${HTTP_CONFIG.host}:${HTTP_CONFIG.port}`);
+  logger.info(`WebSocket Server started at ${WEBSOCKET_CONFIG.host}:${WEBSOCKET_CONFIG.port}`)
 });
+
+

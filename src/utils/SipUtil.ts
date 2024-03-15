@@ -261,3 +261,12 @@ export function compare(obj1: SipRequest, obj2: SipRequest) {
     }
   }
 }
+
+export class SdpHelper {
+    public static generateSsrc({history, realm}: {history: boolean, realm: string}) {
+        let first = history ? "1" : "0";
+        let second = realm.length > 8 ? realm.slice(3, 7) : '0000';
+        let third = realm.length > 12 ? realm.slice(8, 12) : '0000';
+        return `${first}${second}${third}`;
+    }
+}

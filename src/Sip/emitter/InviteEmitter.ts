@@ -4,18 +4,57 @@ import InviteGenerator from '../generator/InviteGenerator';
 import logUtil from '../../utils/logUtil';
 const logger = logUtil("InviteEmitter");
 import AckGenerator from '../generator/AckGenerator';
-import { SipMessageHelper } from '../../utils/SipUtil';
+import { SipMessageHelper, SdpHelper } from '../../utils/SipUtil';
 import { SIP_CONFIG } from '../../config';
 import { SipRequest } from '../../types/sip.type';
 import { DeviceController } from '../../controller/DeviceController';
+import ZLMediaKit from '../../Media/ZLMediaKit';
+import { ZLMediaKitConfig } from '../../config';
+import { HttpException } from '../../utils/httpUtil';
 
 export default class InviteEmitter {
+    /*
+    * @description: 发送邀请推流
+    * @param {IRedisDevice} device
+    * @return boolean 是否成功
+    */
     public static async sendInviteStream(device: IRedisDevice) {
+        // 获取可用rtp端口
+        let udpPort = 10000;
+        const rtpPort = await ZLMediaKit.listRtpServer();
+        if (rtpPort.code !== 0) throw new HttpException();
+        if (!rtpPort.data) {
+            udpPort = +ZLMediaKitConfig.rtp_port_min;
+        } else {
+            // 寻找可用端口
+            let portList = new Map();
+            rtpPort.data.forEach((item: any) => {
+                portList.set(item.port, true);
+            });
+            for (let i = +ZLMediaKitConfig.rtp_port_min; i < +ZLMediaKitConfig.rtp_port_max; i++) {
+                if (!portList.has(i)) {
+                    udpPort = i;
+                    break;
+                }
+            }
+            if (udpPort === 10000) throw new HttpException("RTP端口已用完", 500);
+        }
+
+        // 创建rtp端口
+        const openRtp = await ZLMediaKit.openRtpServer({
+            port: udpPort,
+            stream_id: device.deviceId
+        });
+        logger.info("创建rtp端口：", openRtp)
+        if (openRtp.code !== 0) throw new HttpException("创建RTP端口失败", 500);
+
+        logger.info("创建rtp端口成功：", openRtp);
+
         const sdpContent = SipMessageHelper.generateSdpContent({
             udpPort: 10000,
             channel: device.deviceId,
             clientIp: SIP_CONFIG.host || "",
-            ssrc: "0100000001"
+            ssrc: SdpHelper.generateSsrc({history:false, realm: device.deviceRealm || ''}),
         });
         const message = InviteGenerator.invitePushStream(device, sdpContent);
 
@@ -35,6 +74,8 @@ export default class InviteEmitter {
                 cseqNum: res.headers.cseq.seq + 1 || 20,
                 toTag: res.headers.to.params?.tag || "",
                 fromTag: res.headers.from.params?.tag || "",
+                rtpPort: udpPort,
+                rtspUrl: `rtsp://${ZLMediaKitConfig.host}:${udpPort}/rtp/${device.deviceId}`
             }
             DeviceController.setSessionToRedis(session);
 

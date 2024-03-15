@@ -25,6 +25,13 @@ export default createBrowserRouter([
                 path: "/device",
                 element: <Device />,
                 errorElement: <ErrorPage />,
+                children: [
+                    {
+                        path: "/device/channel",
+                        element: <DeviceChannel />,
+                        errorElement: <ErrorPage />,
+                    }
+                ]
             },
             {
                 path: "/user",

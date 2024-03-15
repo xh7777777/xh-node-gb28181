@@ -17,6 +17,8 @@ services:
       - "13306:3306"
     networks:
       - gb-net
+    volumes:
+      - gb-db-data:/var/lib/mysql
 # 启动redis
   gbredis:
     container_name: gbredis
@@ -43,13 +45,14 @@ services:
       - "10000:10000"
       - "10000:10000/udp"
       - "8000:8000/udp"
+      - "20000-20300:20000-20300/udp"
     networks:
       - gb-net
     volumes:
       - media-data:/opt/media
 
 volumes:
-  gb-mysql-data:
+  gb-db-data:
   gb-redis-data:
   media-data:
 
