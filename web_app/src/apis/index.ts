@@ -76,3 +76,7 @@ export async function closeInvite(deviceId: string, channelId: string) {
     channelId,
   });
 }
+
+export async function testVideo() {
+  return await request.get("/media/testVideo");
+}

@@ -1,4 +1,5 @@
 import Router from "koa-router";
+import MediaController from "../../controller/MediaController";
 
 const router = new Router();
 
@@ -20,6 +21,9 @@ router.all('/websocket/:id', async ctx => {
       console.log('前端关闭了websocket')
     })
   })
+
+  // @ts-ignore
+router.all('/websocket/rtsp/:url', MediaController.handleRtspRequest)
   
 
 export default router;

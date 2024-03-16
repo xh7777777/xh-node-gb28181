@@ -23,6 +23,9 @@ const mediaRouter = new Router({
 mediaRouter.post("/closeInvite", MediaController.closeStream);
 
 // @ts-ignore
+mediaRouter.get("/testVideo", MediaController.testVideo);
+
+// @ts-ignore
 // userRouter.get(
 //   "/info",
 //   jwtAuth({
