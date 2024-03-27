@@ -22,6 +22,15 @@ deviceRouter.get(
 deviceRouter.post("/invite", DeviceController.inviteStream);
 
 // @ts-ignore
+deviceRouter.post(
+  "/delete",
+  jwtAuth({
+    secret: process.env.JWT_SECRET || "secret",
+  }),
+  koaAuth,
+  DeviceController.userDeleteDevice
+);
+// @ts-ignore
 // userRouter.get(
 //   "/info",
 //   jwtAuth({
