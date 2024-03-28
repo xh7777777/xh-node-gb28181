@@ -71,6 +71,9 @@ export default class MessageHandler {
       sip.send(resp);
       return;
     } 
+    // 更新设备信息
+    newDevice.lastPulse = new Date().getTime();
+    await DeviceController.setDeviceToRedis(newDevice);
     const resp = sip.makeResponse(req, 200, "Ok");
     sip.send(resp);
   }

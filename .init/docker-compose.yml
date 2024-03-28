@@ -40,16 +40,15 @@ services:
       - .env
     ports:
       - "1935:1935"
-      - "8080:8080"
+      - "8080:80"
       - "8554:554"
       - "10000:10000"
       - "10000:10000/udp"
       - "8000:8000/udp"
+      - "20000-20300:20000-20300"
       - "20000-20300:20000-20300/udp"
     networks:
       - gb-net
-    volumes:
-      - media-data:/opt/media
 
 volumes:
   gb-db-data:
