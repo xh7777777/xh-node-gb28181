@@ -58,10 +58,8 @@ export async function deleteDevice(deviceId: string) {
 }
 
 export async function getChannelList(deviceId: string) {
-  return await request.get("/device/channel", {
-    params: {
+  return await request.post("/device/channel", {
       deviceId,
-    },
   });
 }
 
@@ -85,4 +83,11 @@ export async function closeInvite(deviceId: string, channelId: string) {
 
 export async function testVideo() {
   return await request.get("/media/testVideo");
+}
+
+export async function getVideoUrl(deviceId: string, channelId: string) {
+  return await request.post("/device/invite", {
+    deviceId,
+    channelId,
+  });
 }

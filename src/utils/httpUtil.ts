@@ -1,5 +1,10 @@
 import jwt from "jsonwebtoken";
 
+export function encodeUri(url: string) {
+  // 把/ 转义成%2F
+  return  url.replace(/\//g, "%2F");
+}
+
 class Resolve {
   success(msg = "success", errorCode = 1, code = 200) {
     return {

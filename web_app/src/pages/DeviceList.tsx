@@ -88,11 +88,11 @@ function DeviceList() {
       key: "operation",
       render: (text, record) => (
         <div>
-          <Button onClick={() => navigate("/device/channel?deviceId=1")}>
+          <Button onClick={() => navigate(`/device/channel?deviceId=${record.deviceId}`)}>
             查看通道
           </Button>
           <Button onClick={() => openModal(text, record)} danger>
-            删除通道
+            删除设备
           </Button>
         </div>
       ),
@@ -122,7 +122,7 @@ function DeviceList() {
     deviceName: item.deviceName,
     lastPulse: new Date(item.lastPulse).toLocaleString(),
     onlineStatus:
-      item.lastRegisterTime + item.registerExpires > Date.now()
+      (item.lastRegisterTime + item.registerExpires > Date.now() || item.lastPulse + item.registerExpires > Date.now())
         ? "在线"
         : "离线",
   }));
@@ -137,16 +137,6 @@ function DeviceList() {
         onCancel={handleCancel}
       ></Modal>
       <div className=" font-bold text-lg mb-4">设备列表</div>
-      <Button onClick={async () => await inviteStream(deviceList[0].deviceId)}>
-        测试拉流
-      </Button>
-      <Button
-        onClick={async () =>
-          await closeStream(deviceList[0].deviceId, deviceList[0].channelCount)
-        }
-      >
-        发送bye停止推流
-      </Button>
       <Table columns={columns} dataSource={deviceTable} pagination={false} />
       <Outlet />
     </div>

@@ -16,7 +16,7 @@ export interface IRedisDevice {
 
 export interface IDeviceSessionCache {
     deviceId: string;
-    channelId: number;
+    channelId: string;
     callId: string;
     cseqNum: number;
     toTag: string;
@@ -29,7 +29,7 @@ export interface IDeviceChannel {
     deviceId: string;
     channelId: number;
     channelName: string;
-    rtpUrl: string;
-    rtpPort: number;
+    rtpUrl?: string;
+    rtpPort?: number;
 }
 

@@ -30,14 +30,16 @@ deviceRouter.post(
   koaAuth,
   DeviceController.userDeleteDevice
 );
+
 // @ts-ignore
-// userRouter.get(
-//   "/info",
-//   jwtAuth({
-//     secret: process.env.JWT_SECRET || "secret",
-//   }),
-//   koaAuth,
-//   UserController.getUserInfo
-// );
+deviceRouter.post(
+  "/channel",
+  jwtAuth({
+    secret: process.env.JWT_SECRET || "secret",
+  }),
+  koaAuth,
+  DeviceController.getChannelList
+);
+
 
 export default deviceRouter;

@@ -20,3 +20,10 @@ export enum sipContentTypeEnum {
     plain = "text/plain",
     json = "application/json",
 }
+
+export enum mediaProtocolEnum { 
+    rtsp = "rtsp",
+    rtmp = "rtmp",
+    hls = "hls",
+    flv = "flv",
+}

@@ -36,9 +36,7 @@ function MsePlayer({ socketUrl }: { socketUrl: string }) {
   return (
     <div>
       Player
-      <div>url:{socketUrl}</div>
-        <Button onClick={handleClickSendMessage}>send hello</Button>
-        <span>state: {connectionStatus}</span>
+      <div>播放地址:{socketUrl}</div>
         <FLVPlayer url={socket} type={`flv`} isLive={true} muted={true} controls={true} autoPlay={true}/>
     </div>
   );

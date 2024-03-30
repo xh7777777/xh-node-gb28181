@@ -1,8 +1,11 @@
 import { Context, Next } from "koa";
 import { resolve } from "../utils/httpUtil";
+import InviteEmitter from "../Sip/emitter/InviteEmitter";
 import ByeEmitter from "../Sip/emitter/ByeEmitter";
 import WebSocketStream from "websocket-stream";
 import ffmpeg from "fluent-ffmpeg";
+import logUtil from '../utils/logUtil';
+const logger = logUtil("MediaController");
 
 export default class MediaController {
     public static async closeStream(ctx:Context, next:Next) {
@@ -22,8 +25,9 @@ export default class MediaController {
     }
 
     public static async handleRtspRequest(ctx:Context, next:Next) {
+        // 获取播放地址
         const url = ctx.params.url;
-        console.log("rtsp request handle", url);
+        logger.info("handleRtspRequest", url);
         const stream = WebSocketStream(ctx.websocket)
         let t = setInterval(function() {
             let n = Math.random()

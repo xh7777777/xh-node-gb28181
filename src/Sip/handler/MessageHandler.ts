@@ -9,6 +9,7 @@ const logger = logUtil("MessageHandler");
 import { DeviceInfoCmdTypeEnum } from "../../types/enum";
 import xml2js from "xml2js";
 import MessageEmitter from "../emitter/MessageEmitter";
+import { IDeviceChannel } from "../../models/redis/device";
 
 interface XmlContent {
   Notify: {
@@ -35,9 +36,26 @@ export default class MessageHandler {
       }
       if (CmdType[0] === DeviceInfoCmdTypeEnum.Catalog) {
         // @ts-ignore
-        // logger.info("设备目录信息", result.Response.DeviceList);
+        logger.info("设备目录信息", result.Response);
         // todo 
-        // .$.Num, .Item
+        // 更新设备通道信息
+        // @ts-ignore
+        const { DeviceList, DeviceID } = result.Response;
+        const deviceId = DeviceID ? DeviceID[0] : "";
+        const deviceChannel = await DeviceController.getChannelListFromRedis(deviceId);
+        if (!deviceChannel.length) {
+          // 没有通道信息， 初始化通道信息
+          for (let i = 0; i < DeviceList.length; i++) {
+            const { DeviceID, Name } = DeviceList[i].Item[0];
+            const channel: IDeviceChannel = {
+              channelId: i,
+              channelName: Name ? Name[0] : "",
+              deviceId: DeviceID ? DeviceID[0] : "",
+            };
+            await DeviceController.setChannelToRedis(channel);
+          }
+        }
+      
         sip.send(sip.makeResponse(req, 200, "Ok"));
       }
       if (CmdType[0] === DeviceInfoCmdTypeEnum.DeviceInfo) {
@@ -49,7 +67,7 @@ export default class MessageHandler {
       }
       if (CmdType[0] === DeviceInfoCmdTypeEnum.DeviceStatus) {
          // @ts-ignore
-        //  logger.info("设备状态信息", result.Response);
+         logger.info("设备状态信息", result.Response);
         // todo 
         sip.send(sip.makeResponse(req, 200, "Ok"));
       }
@@ -72,8 +90,8 @@ export default class MessageHandler {
       return;
     } 
     // 更新设备信息
-    newDevice.lastPulse = new Date().getTime();
-    await DeviceController.setDeviceToRedis(newDevice);
+    device.lastPulse = new Date().getTime();
+    await DeviceController.setDeviceToRedis(device);
     const resp = sip.makeResponse(req, 200, "Ok");
     sip.send(resp);
   }
@@ -88,6 +106,4 @@ export default class MessageHandler {
     await DeviceController.setDeviceToRedis(device);
     sip.send(sip.makeResponse(req, 200, "Ok"));
   }
-
-
 }

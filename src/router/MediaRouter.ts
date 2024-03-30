@@ -20,10 +20,13 @@ const mediaRouter = new Router({
 // );
 
 // @ts-ignore
-mediaRouter.post("/closeInvite", MediaController.closeStream);
+mediaRouter.post("/closeInvite", DeviceController.closeStream);
 
 // @ts-ignore
 mediaRouter.get("/testVideo", MediaController.testVideo);
+
+// @ts-ignore
+mediaRouter.post("/playVideo", MediaController.handleRtspRequest);
 
 // @ts-ignore
 // userRouter.get(

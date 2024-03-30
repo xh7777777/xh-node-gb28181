@@ -39,6 +39,7 @@
     "koa-websocket": "^7.0.0",
     "log4js": "^6.9.1",
     "mysql2": "^3.9.1",
+    "node-cache": "^5.1.2",
     "redis": "^4.6.13",
     "sequelize": "^6.37.0",
     "sip": "^0.0.6",

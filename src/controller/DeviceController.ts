@@ -7,6 +7,10 @@ const logger = logUtil("DeviceController");
 import { Context, Next } from "koa";
 import { resolve } from "../utils/httpUtil";
 import InviteEmitter from "../Sip/emitter/InviteEmitter";
+import { mediaProtocolEnum } from "../types/enum";
+import { encodeUri } from "../utils/httpUtil";
+import cacheUtil from "../utils/cacheUtil";
+import ZLMediaKit from "../Media/ZLMediaKit";
 export class DeviceController {
   public static async getDeviceInfoFromSip(req: SipRequest) {
     return getDeviceInfoFromSip(req);
@@ -69,6 +73,7 @@ export class DeviceController {
 
   public static async getChannelList(ctx: Context, next: Next) {
     const { deviceId } = ctx.request.body;
+    logger.info("获取通道列表", deviceId);
     const value = await DeviceController.getChannelListFromRedis(deviceId);
     if (value) {
       ctx.body = resolve.json(value);
@@ -102,15 +107,49 @@ export class DeviceController {
   }
 
   public static async inviteStream(ctx:Context, next:Next) {
-    const { deviceId} = ctx.request.body;
+    const { deviceId, channelId } = ctx.request.body;
+    // 读取缓存防止重复请求
+    const deviceCacheId = `${deviceId}@${channelId}`;
+    const session = await DeviceController.getSession(deviceCacheId);
+    logger.info("inviteStreamSession",  session);
+    if (session) {
+      ctx.body = resolve.json({
+        url: encodeUri(`${mediaProtocolEnum.rtmp}${session.rtspUrl}`),
+        prefix: 'ws://localhost:3000/websocket/rtsp',
+      }, 'success');
+      return;
+    }
     const device = await DeviceController.getDeviceById({deviceId});
     if (device) {
-      logger.info("发送invite push stream报文设备信息：", device);
-      InviteEmitter.sendInviteStream(device);
-      ctx.body = resolve.success('成功');
+      // 发送invite推流
+      const res = await InviteEmitter.sendInviteStream(device, channelId);
+      if (res.code === 500) {
+          ctx.body = resolve.fail(res.message);
+          return;
+      } else {
+        const { port, url, message, code } = res;
+        logger.info("inviteStream", encodeUri(`${mediaProtocolEnum.rtmp}${url}`));
+        // 获取用户配置的播放协议
+        ctx.body = resolve.json({
+          url: encodeUri(`${mediaProtocolEnum.rtmp}${url}`),
+          prefix: 'ws://localhost:3000/websocket/rtsp',
+        }, message, code);
+      }
     } else {
-      ctx.body = resolve.json({}, '设备不存在');
+      ctx.body = resolve.fail( '设备不存在');
     }
+  }
+
+  public static async closeStream(ctx:Context, next:Next) {
+    const { deviceId, channelId } = ctx.request.body;
+    // 清缓存
+    await DeviceController.deleteSession(deviceId, channelId);
+    cacheUtil.del(`${deviceId}@${channelId}`);
+    // 关闭rtp端口
+    await ZLMediaKit.closeRtpServer(`${deviceId}_${channelId}`)
+    ctx.body = resolve.json({
+      closeStreamId: `${deviceId}_${channelId}`
+    })
   }
 
 }
