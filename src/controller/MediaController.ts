@@ -6,6 +6,8 @@ import WebSocketStream from "websocket-stream";
 import ffmpeg from "fluent-ffmpeg";
 import logUtil from '../utils/logUtil';
 const logger = logUtil("MediaController");
+import cacheUtil from "../utils/cacheUtil";
+import { DeviceController } from "./DeviceController";
 
 export default class MediaController {
     public static async closeStream(ctx:Context, next:Next) {
@@ -28,6 +30,7 @@ export default class MediaController {
         // 获取播放地址
         const url = ctx.params.url;
         logger.info("handleRtspRequest", url);
+        const streamId = url.split("/").pop();
         const stream = WebSocketStream(ctx.websocket)
         let t = setInterval(function() {
             let n = Math.random()
@@ -38,8 +41,12 @@ export default class MediaController {
             }
           }, 1000)
 
-        ctx.websocket.on("close", function () {
+        ctx.websocket.on("close", async function () {
             console.log("rtsp websocket close");
+            const timer = cacheUtil.get(streamId.replace('_', '@'));
+            if (!timer) {
+                await DeviceController.closeStreamFunc(streamId.split('_')[0], streamId.split('_')[1]);
+            }
             stream.destroy();
         })
 

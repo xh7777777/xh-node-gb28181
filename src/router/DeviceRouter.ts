@@ -33,6 +33,17 @@ deviceRouter.post(
 
 // @ts-ignore
 deviceRouter.post(
+  "/refresh",
+  jwtAuth({
+    secret: process.env.JWT_SECRET || "secret",
+  }),
+  koaAuth,
+  DeviceController.refreshDevice
+);
+
+
+// @ts-ignore
+deviceRouter.post(
   "/channel",
   jwtAuth({
     secret: process.env.JWT_SECRET || "secret",

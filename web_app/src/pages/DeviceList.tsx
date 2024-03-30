@@ -1,31 +1,30 @@
 import React from "react";
 import { useRequest } from "ahooks";
-import { getDeviceList, testInvite, closeInvite, deleteDevice } from "../apis";
-import { Button, Table, TableProps, Spin, Modal } from "antd";
+import { getDeviceList, testInvite, closeInvite, deleteDevice, refreshDevice } from "../apis";
+import { Button, Table, TableProps, Spin, Modal, message } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
 import { DeviceDataType } from "../data/tableData";
 import { Outlet } from "react-router-dom";
 
 function DeviceList() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const [messageApi, contextHolder] = message.useMessage();
   const [modalOpen, setModalOpen] = React.useState(false);
   const [confirmLoading, setConfirmLoading] = React.useState(false);
   const [deleteChoice, setDeleteChoice] = React.useState("");
   const { data, error, loading } = useRequest(
     async () => await getDeviceList()
   );
+  
+  const refresh = async (deviceId: string) => {
+    try {
 
-  async function inviteStream(deviceId: string) {
-    const res = await testInvite(deviceId);
-    console.log(res);
+      const res = await refreshDevice(deviceId);
+      messageApi.info("刷新成功");
+    } catch (error) {
+      console.log(error);
+    }
   }
-
-  async function closeStream(deviceId: string, channelId: string) {
-    const res = await closeInvite(deviceId, channelId);
-    console.log(res);
-  }
-
 
   const handleCancel = () => {
     setModalOpen(false);
@@ -91,6 +90,9 @@ function DeviceList() {
           <Button onClick={() => navigate(`/device/channel?deviceId=${record.deviceId}`)}>
             查看通道
           </Button>
+          <Button onClick={() => refresh(record.deviceId)}>
+            刷新设备
+          </Button>
           <Button onClick={() => openModal(text, record)} danger>
             删除设备
           </Button>
@@ -129,6 +131,7 @@ function DeviceList() {
 
   return (
     <div>
+      {contextHolder}
       <Modal
         title="确认删除?"
         open={modalOpen}

@@ -27,7 +27,7 @@ export interface IDeviceSessionCache {
 
 export interface IDeviceChannel {
     deviceId: string;
-    channelId: number;
+    channelId: string; 
     channelName: string;
     rtpUrl?: string;
     rtpPort?: number;

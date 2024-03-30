@@ -48,9 +48,9 @@ export default class MessageHandler {
           for (let i = 0; i < DeviceList.length; i++) {
             const { DeviceID, Name } = DeviceList[i].Item[0];
             const channel: IDeviceChannel = {
-              channelId: i,
+              deviceId: deviceId,
               channelName: Name ? Name[0] : "",
-              deviceId: DeviceID ? DeviceID[0] : "",
+              channelId: DeviceID ? DeviceID[0] : "",
             };
             await DeviceController.setChannelToRedis(channel);
           }

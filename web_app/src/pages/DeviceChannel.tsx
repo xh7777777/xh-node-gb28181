@@ -34,11 +34,16 @@ function DeviceChannel() {
       key: "channelId",
     },
     {
+      title: "设备id",
+      dataIndex: "deviceId",
+      key: "deviceId",
+    },
+    {
       title: "操作",
       dataIndex: "operation",
       key: "operation",
       render: (text, record) => (
-        <Button onClick={() => handlePlayVideo(record.channelId)}>
+        <Button onClick={() => handlePlayVideo(record.channelId, record.deviceId)}>
           播放视频
         </Button>
       ),
@@ -59,16 +64,16 @@ function DeviceChannel() {
   const channelList = Object.values(data?.data.data).map((item: unknown) => (JSON.parse(typeof item === 'string' ? item : JSON.stringify(item))));
   const deviceTable: DeviceChannelDataType[] = channelList.map((item, index) => ({
     index,
+    deviceId: item.deviceId,
     key: item.channelId,
     channelId: item.channelId,
     channelName: item.channelName,
   }));
 
-  async function handlePlayVideo(channelId: string) {
+  async function handlePlayVideo(channelId: string, deviceId: string) {
     try {
       setCurrentChannelId(channelId)
       const { data } = await getVideoUrl(deviceId, channelId);
-      console.log(data.data)
       const socketUrl = data?.data?.prefix + '/' + data?.data?.url.replace(/\//g, "%2F");
       setSocketUrl(socketUrl)
       setVideoShow(true)

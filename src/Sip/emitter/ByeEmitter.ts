@@ -7,7 +7,7 @@ import { HttpException, NotFound } from "../../utils/httpUtil";
 import ZLMediaKit from "../../Media/ZLMediaKit";
 
 export default class ByeEmitter {
-    public static async sendBye(deviceId:string, channelId:number){
+    public static async sendBye(deviceId:string, channelId:string){
         // todo 发送bye
         const deviceCacheId = `${deviceId}@${channelId}`;
         const device = await DeviceController.getSession(deviceCacheId);

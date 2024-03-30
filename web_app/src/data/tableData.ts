@@ -20,6 +20,7 @@ export  interface DeviceDataType {
 export interface DeviceChannelDataType {
     index: number;
     key: string;
+    deviceId: string;
     channelId: string;
     channelName: string;
 }

@@ -11,6 +11,7 @@ import { mediaProtocolEnum } from "../types/enum";
 import { encodeUri } from "../utils/httpUtil";
 import cacheUtil from "../utils/cacheUtil";
 import ZLMediaKit from "../Media/ZLMediaKit";
+import MessageEmitter from "../Sip/emitter/MessageEmitter";
 export class DeviceController {
   public static async getDeviceInfoFromSip(req: SipRequest) {
     return getDeviceInfoFromSip(req);
@@ -97,7 +98,7 @@ export class DeviceController {
     ctx.body = resolve.success('删除成功');
   }
 
-  public static async deleteSession(deviceId: string, channelId: number) {
+  public static async deleteSession(deviceId: string, channelId: string) {
     await client.hDel("session", `${deviceId}@${channelId}`);
   }
 
@@ -111,7 +112,11 @@ export class DeviceController {
     // 读取缓存防止重复请求
     const deviceCacheId = `${deviceId}@${channelId}`;
     const session = await DeviceController.getSession(deviceCacheId);
-    logger.info("inviteStreamSession",  session);
+    // 清除定时器
+    const timer = cacheUtil.get(deviceCacheId);
+    if (timer) {
+      clearTimeout(timer as NodeJS.Timeout);
+    }
     if (session) {
       ctx.body = resolve.json({
         url: encodeUri(`${mediaProtocolEnum.rtmp}${session.rtspUrl}`),
@@ -142,14 +147,40 @@ export class DeviceController {
 
   public static async closeStream(ctx:Context, next:Next) {
     const { deviceId, channelId } = ctx.request.body;
-    // 清缓存
-    await DeviceController.deleteSession(deviceId, channelId);
-    cacheUtil.del(`${deviceId}@${channelId}`);
-    // 关闭rtp端口
-    await ZLMediaKit.closeRtpServer(`${deviceId}_${channelId}`)
+    await DeviceController.closeStreamFunc(deviceId, channelId);
     ctx.body = resolve.json({
-      closeStreamId: `${deviceId}_${channelId}`
+      closeStreamId: `${deviceId}_${channelId}`,
+      expire: 60000,
     })
   }
 
+  public static async closeStreamFunc(deviceId: string, channelId: string, ttl: number = 60000) {
+    logger.info("1分钟后 closeStream", deviceId, channelId);
+    const deviceCacheId = `${deviceId}@${channelId}`;
+    const time = cacheUtil.get(deviceCacheId);
+    if (time) {
+      clearTimeout(time as NodeJS.Timeout);
+    }
+    let timer = setTimeout(async () => {
+      logger.info("closeStream执行", deviceId, channelId);
+      await DeviceController.deleteSession(deviceId, channelId);
+      cacheUtil.del(`${deviceId}@${channelId}`);
+      // 关闭rtp端口
+      await ZLMediaKit.closeRtpServer(`${deviceId}_${channelId}`)
+    }, ttl);
+    cacheUtil.set(`${deviceId}@${channelId}`, timer, ttl);
+  }
+
+  public static async refreshDevice(ctx:Context, next:Next) {
+    const { deviceId } = ctx.request.body;
+    const device = await DeviceController.getDeviceById({deviceId});
+    if (device) {
+      MessageEmitter.sendGetDeviceCatalog(device);
+      MessageEmitter.sendGetDeviceStatus(device);
+      MessageEmitter.sendGetDeviceInfo(device);
+      ctx.body = resolve.success('刷新成功');
+    } else {
+      ctx.body = resolve.fail('设备不存在');
+    }
+  }
 }

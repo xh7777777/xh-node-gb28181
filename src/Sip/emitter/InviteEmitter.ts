@@ -49,7 +49,7 @@ export default class InviteEmitter {
         }, 60)
         const sdpContent = SipMessageHelper.generateSdpContent({
           udpPort: openRtp.port,
-          channel: device.deviceId,
+          channel: channelId,
           clientIp: SIP_CONFIG.host || "",
           ssrc: SdpHelper.generateSsrc({
             history: false,

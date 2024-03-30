@@ -57,6 +57,12 @@ export async function deleteDevice(deviceId: string) {
   });
 }
 
+export async function refreshDevice(deviceId: string) {
+  return await request.post("/device/refresh", {
+    deviceId,
+  });
+}
+
 export async function getChannelList(deviceId: string) {
   return await request.post("/device/channel", {
       deviceId,
