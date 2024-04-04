@@ -150,15 +150,24 @@ export class DeviceController {
 
   public static async closeStream(ctx:Context, next:Next) {
     const { deviceId, channelId, ttl = 60000 } = ctx.request.body;
+    const deviceCacheId = `${deviceId}@${channelId}`;
+    const session = await DeviceController.getSession(deviceCacheId);
+    if (!session) {
+      ctx.body = resolve.json({
+        msg: '视频已经关闭推流'
+      })
+      return;
+    }
     await DeviceController.closeStreamFunc(deviceId, channelId, ttl);
     ctx.body = resolve.json({
       closeStreamId: `${deviceId}_${channelId}`,
       expire: 60000,
+      msg: '关闭成功'
     })
   }
 
   public static async closeStreamFunc(deviceId: string, channelId: string, ttl: number = 60000) {
-    logger.info("1分钟后 closeStream", deviceId, channelId);
+    logger.info("分钟后 closeStream", deviceId, channelId);
     const deviceCacheId = `${deviceId}@${channelId}`;
     const time = cacheUtil.get(deviceCacheId);
     if (time) {

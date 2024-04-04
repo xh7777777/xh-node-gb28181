@@ -2,7 +2,7 @@ import React from 'react'
 import { useRequest } from 'ahooks'
 import { getVideoUrl, getChannelList, closeInvite, deleteChannelVideo } from '../apis'
 import { Spin } from 'antd'
-import { Button, Table, TableProps } from 'antd'
+import { Button, Table, TableProps, message } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { DeviceChannelDataType } from '../data/tableData'
 import VideoPopUp from '../components/VideoPopUp'
@@ -13,6 +13,7 @@ function DeviceChannel() {
   const deviceId = location.search.split('=')[1]
   const [socketUrl, setSocketUrl] = React.useState<string>("");
   const [currentChannelId, setCurrentChannelId] = React.useState<string>("");
+  const [messageApi, contextHolder] = message.useMessage();
   const [videoShow, setVideoShow] = React.useState<boolean>(false);
   // 获取设备通道
   const { data, error, loading } = useRequest(async () => await getChannelList(deviceId));
@@ -88,13 +89,14 @@ function DeviceChannel() {
   }
 
   async function handleCloseVideo(channelId: string, deviceId: string) {
-    await deleteChannelVideo(deviceId, channelId);
-    setVideoShow(false)
+    const res = await deleteChannelVideo(deviceId, channelId);
+    messageApi.success(res?.data?.data?.msg)
   }
 
 
   return (
     <div>
+      {contextHolder}
           <div className=' font-bold text-lg mb-4'>通道列表</div>
           <Table
             columns={columns}
