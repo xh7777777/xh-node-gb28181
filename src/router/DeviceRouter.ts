@@ -52,5 +52,14 @@ deviceRouter.post(
   DeviceController.getChannelList
 );
 
+// @ts-ignore
+deviceRouter.post(
+  "/deleteChannelVideo",
+  jwtAuth({
+    secret: process.env.JWT_SECRET || "secret",
+  }),
+  koaAuth,
+  DeviceController.closeStream
+);
 
 export default deviceRouter;

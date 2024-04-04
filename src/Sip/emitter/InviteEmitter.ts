@@ -42,7 +42,7 @@ export default class InviteEmitter {
         message: "创建rtp端口失败",
       };
       else {
-        const rtspUrl = `://${ZLMediaKitConfig.host}/rtp/${device.deviceId}_${channelId}`;
+        const rtspUrl = `://${ZLMediaKitConfig.host}:${ZLMediaKitConfig.rtmp_port}/rtp/${device.deviceId}_${channelId}`;
         cacheUtil.set(`${device.deviceId}@${channelId}`, {
           rtpPort: openRtp.port,
           rtspUrl,

@@ -112,9 +112,11 @@ export class DeviceController {
     // 读取缓存防止重复请求
     const deviceCacheId = `${deviceId}@${channelId}`;
     const session = await DeviceController.getSession(deviceCacheId);
+    logger.info("session", session);
     // 清除定时器
     const timer = cacheUtil.get(deviceCacheId);
     if (timer) {
+      logger.info("清除定时器", deviceCacheId);
       clearTimeout(timer as NodeJS.Timeout);
     }
     if (session) {
@@ -125,6 +127,7 @@ export class DeviceController {
       return;
     }
     const device = await DeviceController.getDeviceById({deviceId});
+    logger.info("inviteStream", device);
     if (device) {
       // 发送invite推流
       const res = await InviteEmitter.sendInviteStream(device, channelId);
@@ -146,8 +149,8 @@ export class DeviceController {
   }
 
   public static async closeStream(ctx:Context, next:Next) {
-    const { deviceId, channelId } = ctx.request.body;
-    await DeviceController.closeStreamFunc(deviceId, channelId);
+    const { deviceId, channelId, ttl = 60000 } = ctx.request.body;
+    await DeviceController.closeStreamFunc(deviceId, channelId, ttl);
     ctx.body = resolve.json({
       closeStreamId: `${deviceId}_${channelId}`,
       expire: 60000,
@@ -163,10 +166,14 @@ export class DeviceController {
     }
     let timer = setTimeout(async () => {
       logger.info("closeStream执行", deviceId, channelId);
-      await DeviceController.deleteSession(deviceId, channelId);
-      cacheUtil.del(`${deviceId}@${channelId}`);
-      // 关闭rtp端口
-      await ZLMediaKit.closeRtpServer(`${deviceId}_${channelId}`)
+      try {
+        await DeviceController.deleteSession(deviceId, channelId);
+        cacheUtil.del(`${deviceId}@${channelId}`);
+        // 关闭rtp端口
+        await ZLMediaKit.closeRtpServer(`${deviceId}_${channelId}`)
+      } catch (error) {
+        logger.error("closeStream error", error);
+      }
     }, ttl);
     cacheUtil.set(`${deviceId}@${channelId}`, timer, ttl);
   }

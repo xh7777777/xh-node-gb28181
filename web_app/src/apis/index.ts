@@ -69,6 +69,18 @@ export async function getChannelList(deviceId: string) {
   });
 }
 
+export async function getChannelSession(deviceId: string, channelId: string) {
+
+}
+
+export async function deleteChannelVideo(deviceId: string, channelId: string, ttl = 0) {
+  return await request.post("/device/deleteChannelVideo", {
+    deviceId,
+    channelId,
+    ttl,
+  });
+}
+
 
 export async function getUserList() {
   return await request.get("/user/list");

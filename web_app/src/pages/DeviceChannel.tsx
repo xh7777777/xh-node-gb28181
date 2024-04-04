@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRequest } from 'ahooks'
-import { getVideoUrl, getChannelList, closeInvite } from '../apis'
+import { getVideoUrl, getChannelList, closeInvite, deleteChannelVideo } from '../apis'
 import { Spin } from 'antd'
 import { Button, Table, TableProps } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -43,9 +43,14 @@ function DeviceChannel() {
       dataIndex: "operation",
       key: "operation",
       render: (text, record) => (
-        <Button onClick={() => handlePlayVideo(record.channelId, record.deviceId)}>
-          播放视频
+        <div>
+          <Button onClick={() => handlePlayVideo(record.channelId, record.deviceId)}>
+            播放视频
+          </Button>
+          <Button onClick={() => handleCloseVideo(record.channelId, record.deviceId)} danger>
+          关闭视频
         </Button>
+        </div>
       ),
     },
   ];
@@ -82,9 +87,8 @@ function DeviceChannel() {
     }
   }
 
-  async function handleCloseVideo() {
-    await closeInvite(deviceId, currentChannelId);
-    setCurrentChannelId('');
+  async function handleCloseVideo(channelId: string, deviceId: string) {
+    await deleteChannelVideo(deviceId, channelId);
     setVideoShow(false)
   }
 
@@ -97,7 +101,7 @@ function DeviceChannel() {
             dataSource={deviceTable}
             pagination={false}
           />
-          <VideoPopUp socketUrl={socketUrl} show={videoShow} handleCloseVideo={handleCloseVideo}/>
+          <VideoPopUp socketUrl={socketUrl} show={videoShow} handleCloseVideo={() => setVideoShow(false)}/>
     </div>
 
   )
