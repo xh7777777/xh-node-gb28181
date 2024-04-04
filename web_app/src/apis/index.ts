@@ -109,3 +109,11 @@ export async function getVideoUrl(deviceId: string, channelId: string) {
     channelId,
   });
 }
+
+export async function deviceControl(deviceId: string, channelId: string, action: string) {
+  return await request.post("/device/deviceControl", {
+    deviceId,
+    channelId,
+    action
+  });
+}

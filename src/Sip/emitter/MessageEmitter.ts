@@ -1,5 +1,5 @@
 import MessageGenerator from "../generator/MessageGenerator";
-import { DeviceInfoCmdTypeEnum } from "../../types/enum";
+import { DeviceInfoCmdTypeEnum, deviceControlActionEnum, ptzCmdEnum } from "../../types/enum";
 import { IRedisDevice } from "../../models/redis/device";
 import sip from "sip";
 
@@ -23,4 +23,11 @@ export default class MessageEmitter {
         const message = MessageGenerator.getDeviceInfo(device, DeviceInfoCmdTypeEnum.DeviceStatus);
         sip.send(message);
     }
+
+    // 云台控制
+    public static async sendPtz(device: IRedisDevice, action: deviceControlActionEnum) {
+        const message = MessageGenerator.ptzControl(device, DeviceInfoCmdTypeEnum.DeviceControl, ptzCmdEnum[action as keyof typeof ptzCmdEnum]);
+        sip.send(message);
+    }
+
 }

@@ -45,7 +45,7 @@ export default class MediaController {
             console.log("rtsp websocket close");
             const timer = cacheUtil.get(streamId.replace('_', '@'));
             if (!timer) {
-                await DeviceController.closeStreamFunc(streamId.split('_')[0], streamId.split('_')[1]);
+                await DeviceController.closeStreamFunc(streamId.split('_')[0], streamId.split('_')[1], 600000);
             }
             stream.destroy();
         })

@@ -62,4 +62,15 @@ deviceRouter.post(
   DeviceController.closeStream
 );
 
+// @ts-ignore
+deviceRouter.post(
+  "/deviceControl",
+  jwtAuth({
+    secret: process.env.JWT_SECRET || "secret",
+  }),
+  koaAuth,
+  DeviceController.ptzControl
+);
+
+
 export default deviceRouter;

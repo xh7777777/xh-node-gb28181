@@ -103,7 +103,7 @@ function DeviceChannel() {
             dataSource={deviceTable}
             pagination={false}
           />
-          <VideoPopUp socketUrl={socketUrl} show={videoShow} handleCloseVideo={() => setVideoShow(false)}/>
+          <VideoPopUp socketUrl={socketUrl} show={videoShow} handleCloseVideo={() => setVideoShow(false)} deviceId={deviceId} channelId={currentChannelId}/>
     </div>
 
   )

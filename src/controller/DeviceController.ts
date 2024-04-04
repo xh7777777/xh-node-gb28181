@@ -7,7 +7,7 @@ const logger = logUtil("DeviceController");
 import { Context, Next } from "koa";
 import { resolve } from "../utils/httpUtil";
 import InviteEmitter from "../Sip/emitter/InviteEmitter";
-import { mediaProtocolEnum } from "../types/enum";
+import { mediaProtocolEnum, deviceControlActionEnum } from "../types/enum";
 import { encodeUri } from "../utils/httpUtil";
 import cacheUtil from "../utils/cacheUtil";
 import ZLMediaKit from "../Media/ZLMediaKit";
@@ -195,6 +195,24 @@ export class DeviceController {
       MessageEmitter.sendGetDeviceStatus(device);
       MessageEmitter.sendGetDeviceInfo(device);
       ctx.body = resolve.success('刷新成功');
+    } else {
+      ctx.body = resolve.fail('设备不存在');
+    }
+  }
+
+  public static async ptzControl(ctx:Context, next:Next) {
+    const { deviceId, channelId, action = '' } = ctx.request.body;
+    logger.info("ptzControl", deviceId, channelId, action);
+    if (!deviceControlActionEnum[action as keyof typeof deviceControlActionEnum]) {
+      ctx.body = resolve.fail('操作不存在');
+      return;
+    }
+    const device = await DeviceController.getDeviceById({deviceId});
+
+    if (device) {
+      // 发送ptz控制
+      MessageEmitter.sendPtz(device, deviceControlActionEnum[action as keyof typeof deviceControlActionEnum]);
+      ctx.body = resolve.success('操作成功');
     } else {
       ctx.body = resolve.fail('设备不存在');
     }
