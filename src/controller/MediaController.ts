@@ -26,20 +26,17 @@ export default class MediaController {
         });
     }
 
+    // 检测当前通道的推流状态
+    public static async checkStream(ctx:Context, next:Next) {
+
+    }
+
     public static async handleRtspRequest(ctx:Context, next:Next) {
         // 获取播放地址
         const url = ctx.params.url;
         logger.info("handleRtspRequest", url);
         const streamId = url.split("/").pop();
         const stream = WebSocketStream(ctx.websocket)
-        let t = setInterval(function() {
-            let n = Math.random()
-            if(n > 0.3) {
-              let msg = JSON.stringify({ 'id': ctx.params.url, 'n': n })
-              // @ts-ignore
-              ctx.websocket.send(msg)
-            }
-          }, 1000)
 
         ctx.websocket.on("close", async function () {
             console.log("rtsp websocket close");
@@ -48,9 +45,14 @@ export default class MediaController {
                 await DeviceController.closeStreamFunc(streamId.split('_')[0], streamId.split('_')[1], 600000);
             }
             stream.destroy();
+        });
+
+        ctx.websocket.on("connection", function () {
+            console.log("rtsp websocket connect");
         })
 
         ctx.websocket.on("message", function (message) {
+            // 心跳检测
             console.log("rtsp websocket message", message);
         });
         try {

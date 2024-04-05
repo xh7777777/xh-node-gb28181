@@ -68,6 +68,7 @@ function VideoPopUp({ socketUrl, show, handleCloseVideo, deviceId, channelId }: 
       onCancel={handleCloseVideo}
       footer={null}
       width={1400}
+      maskClosable={false}
     >
         <div className="h-[400px] md:h-[850px] overflow-auto flex flex-col gap-4">
             <div className=" flex-1">{socketUrl && <MsePlayer socketUrl={socketUrl} />}</div>
@@ -110,8 +111,8 @@ function Controller({ slideValue, onChange, deviceId, channelId}: { slideValue: 
 
           </div>
           <div className=" ml-24 flex flex-col justify-between">
-            <Button><PlusOutlined /></Button>
-            <Button><MinusOutlined /></Button>
+            <Button onClick={() => handleDeviceControl(deviceId, channelId, deviceControlActionEnum.zoomOut)} ><PlusOutlined /></Button>
+            <Button onClick={() => handleDeviceControl(deviceId, channelId, deviceControlActionEnum.zoomIn)}><MinusOutlined /></Button>
           </div>
         </div>
         <Col span={4} className=" ml-4">

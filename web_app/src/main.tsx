@@ -21,8 +21,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             itemSelectedBg: '#818cf8',
             itemHeight: 80,
           },
-          Button: {
-          },
         }
       }}>
         <RouterProvider router={router} />

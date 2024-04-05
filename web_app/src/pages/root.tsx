@@ -16,7 +16,7 @@ export default function Root() {
 
     return (
         <LayoutWrapper>
-            <div id="detail">
+            <div id="detail" className="w-full h-full">
                 <Outlet />
             </div>
         </LayoutWrapper>
