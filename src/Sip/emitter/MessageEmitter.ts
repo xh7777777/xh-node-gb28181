@@ -30,4 +30,10 @@ export default class MessageEmitter {
         sip.send(message);
     }
 
+    // 获取录像信息
+    public static async sendRecordInfo(device: IRedisDevice, channelId: string, startTime: string, endTime: string) {
+        const message = MessageGenerator.getRecordInfo(device, DeviceInfoCmdTypeEnum.RecordInfo, channelId, startTime, endTime);
+        sip.send(message);
+
+    }
 }

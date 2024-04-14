@@ -1,11 +1,19 @@
 import React from 'react'
 import useWebSocket, {ReadyState} from 'react-use-websocket'
-import { Button, message } from 'antd'
+import { Button, message, Tree } from 'antd'
 import MsePlayer from '../components/MsePlayer'
 import { getVideoUrl } from '../apis'
 
+interface DataNode {
+  title: string;
+  key: string;
+  isLeaf?: boolean;
+  children?: DataNode[];
+}
+
 function Main() {
     const [streams, setStreams] = React.useState<any>([])
+    const [treeData, setTreeData] = React.useState<DataNode[]>([]);
     const [messageApi, contextHolder] = message.useMessage();
     const [socketUrl1, setSocketUrl1] = React.useState<string>("");
     const [socketUrl2, setSocketUrl2] = React.useState<string>("");
@@ -13,9 +21,30 @@ function Main() {
     const [socketUrl4, setSocketUrl4] = React.useState<string>("");
 
     React.useEffect(() => {
-      const streams = window.localStorage.getItem('stream')
+      let streams = window.localStorage.getItem('stream')
       if (streams) {
         setStreams(JSON.parse(streams).sort((a: any, b: any) => a.section - b.section))
+        let temp = JSON.parse(streams).reduce((acc: any, cur: any) => {
+          if (cur.deviceId in acc && Array.isArray(acc[cur.deviceId])) {
+            acc[cur.deviceId].push({title: `${cur.channelName}@${cur.channelId}`, key: cur.channelId + Math.random()})
+          } else {
+            acc[cur.deviceId] = [{title:`${cur.channelName}@${cur.channelId}`, key: cur.channelId + Math.random()}]
+          }
+          return acc
+        }, {})
+        let st: DataNode = {
+          title: 'XH-GB28181平台',
+          key: 'XH-GB28181平台',
+          children: []
+        };
+        for (let key in temp) {
+          st?.children?.push({
+            title: key,
+            key: key,
+            children: temp[key]
+          });
+        }
+        setTreeData([st])
       }
     }, [])
 
@@ -62,8 +91,9 @@ function Main() {
             <div className=' h-20 w-full text-white font-bold text-3xl p-4 flex justify-center items-center bg-slate-300 border-b-2'>
                 通道列表
             </div>
+            <Tree treeData={treeData} defaultExpandAll={true}/>
             {streams.map((stream: any) => (
-              <div className=' h-20 w-full text-white font-bold text-xl p-4 flex justify-center items-center bg-slate-300 border-b-2' key={stream.section}>{stream.section}:{stream.channelId}
+              <div className=' h-20 w-full text-white font-bold text-md p-4 flex justify-center items-center bg-slate-300 border-b-2' key={stream.section}>{stream.section}:{stream.channelId}
                 <Button onClick = {() => handleDeleteChannel(stream.channelId, stream.section)} danger>删除通道</Button>
               </div>
             ))}

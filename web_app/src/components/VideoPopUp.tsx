@@ -58,6 +58,7 @@ function VideoPopUp({ socketUrl, show, handleCloseVideo, deviceId, channelId }: 
     console.log('click ', e);
     setCurrent(e.key);
   };
+  console.log(socketUrl)
 
   return (
     // 遮罩层

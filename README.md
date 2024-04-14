@@ -2,6 +2,11 @@
 ### 持续开发中
 ### 安装
 - Node版本 >= 18
+- cd .init && docker-compose up
+- yarn install
+- yarn dev
+### web平台基于vite+react
+- cd web-app
 - yarn install
 - yarn dev
 ### 目前功能
@@ -18,8 +23,8 @@
 - [X] 云台控制（方向、缩放控制）;
 ### 开发中
 
+-
+- 历史音视频检索/视音频文件下载/录像查询与回放（需要NVR\DVR支持）;
+- NAT穿透/公网部署
 - 订阅与通知
-- 视音频文件下载
-- 录像查询与回放（基于NVR\DVR，暂不支持快进、seek操作）;
-- NAT穿透
-<!-- - 国标级联 -->
+- 国标级联

@@ -13,14 +13,16 @@ function DeviceChannel() {
   const deviceId = location.search.split('=')[1]
   const [socketUrl, setSocketUrl] = React.useState<string>("");
   const [currentChannelId, setCurrentChannelId] = React.useState<string>("");
+  const [currentChannelName, setCurrentChannelName] = React.useState<string>("");
   const [messageApi, contextHolder] = message.useMessage();
   const [videoShow, setVideoShow] = React.useState<boolean>(false);
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
   // 获取设备通道
   const { data, error, loading } = useRequest(async () => await getChannelList(deviceId));
 
-  const handleAddToMain = (channelId: string) => {
+  const handleAddToMain = (channelId: string, channelName :string) => {
     setCurrentChannelId(channelId)
+    setCurrentChannelName(channelName)
     setModalOpen(true)
   }
 
@@ -30,7 +32,8 @@ function DeviceChannel() {
       section,
       channelId,
       deviceId,
-      socketUrl
+      socketUrl,
+      channelName: currentChannelName
     }
     const streams = storage.getItem('stream')
     if (streams) {
@@ -82,7 +85,7 @@ function DeviceChannel() {
           <Button onClick={() => handlePlayVideo(record.channelId, record.deviceId)}>
             播放视频
           </Button>
-          <Button onClick={() => handleAddToMain(record.channelId)}>
+          <Button onClick={() => handleAddToMain(record.channelId, record.channelName)}>
           添加首页
         </Button>
           <Button onClick={() => handleCloseVideo(record.channelId, record.deviceId)} danger>

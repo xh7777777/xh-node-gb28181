@@ -4,6 +4,12 @@ export enum DeviceInfoCmdTypeEnum {
     DeviceStatus = "DeviceStatus", // 设备状态
     Keepalive = "Keepalive", // 心跳
     DeviceControl = "DeviceControl", // 设备控制
+    RecordInfo = "RecordInfo", // 查询录像信息
+    Alarm = "Alarm", // 报警
+    ConfigDownload = "ConfigDownload", // 配置下载
+    PresetQuery = "PresetQuery", // 查询预置位
+    MobilePosition = "MobilePosition", // 移动定位
+    Broadcast = "Broadcast", // 广播
 }
 
 export enum sipMethodEnum {
