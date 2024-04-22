@@ -117,3 +117,11 @@ export async function deviceControl(deviceId: string, channelId: string, action:
     action
   });
 }
+
+export async function deviceChannelStreamMode(deviceId: string, channelId: string, streamMode: string) {
+  return await request.post("/device/deviceChannelStreamMode", {
+    deviceId,
+    channelId,
+    streamMode
+  });
+}

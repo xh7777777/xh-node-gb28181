@@ -1,11 +1,18 @@
 import React from 'react'
 import { useRequest } from 'ahooks'
-import { getVideoUrl, getChannelList, closeInvite, deleteChannelVideo } from '../apis'
+import { getVideoUrl, getChannelList, closeInvite, deleteChannelVideo, deviceChannelStreamMode } from '../apis'
 import { Spin } from 'antd'
-import { Button, Table, TableProps, message, Modal } from 'antd'
+import { Button, Table, TableProps, message, Modal, Select } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { DeviceChannelDataType } from '../data/tableData'
 import VideoPopUp from '../components/VideoPopUp'
+
+const streamModeMap = {
+  0: 'UDP',
+  1: 'TCP被动',
+  2: 'TCP主动',
+  undefined: '未知',
+}
 
 function DeviceChannel() {
   const navigate = useNavigate();
@@ -55,6 +62,11 @@ function DeviceChannel() {
     messageApi.success('添加成功')
   }
 
+  const handleStreamModeChange = async (value: string, record: any) => {
+    const res = await deviceChannelStreamMode(record.deviceId, record.channelId, value);
+    messageApi.success(res?.data?.data?.msg)
+  }
+
   const columns: TableProps<DeviceChannelDataType>["columns"] = [
     {
       title: "序号",
@@ -75,6 +87,23 @@ function DeviceChannel() {
       title: "设备id",
       dataIndex: "deviceId",
       key: "deviceId",
+    },
+    {
+      title: "推流模式",
+      dataIndex: "streamMode",
+      key: "streamMode",
+      render: (text, record) => (
+        <Select
+        defaultValue={record.streamMode}
+        style={{ width: 120 }}
+        onChange={async (value) => await handleStreamModeChange(value, record)}
+        options={[
+          { value: 'udp', label: 'UDP' },
+          { value: 'tcpPassive', label: 'TCP被动' },
+          { value: 'tcpActive', label: 'TCP主动' },
+        ]}
+      />
+      )
     },
     {
       title: "操作",
@@ -114,6 +143,7 @@ function DeviceChannel() {
     key: item.channelId,
     channelId: item.channelId,
     channelName: item.channelName,
+    streamMode: streamModeMap[item.streamMode as keyof typeof streamModeMap],
   }));
 
   async function handlePlayVideo(channelId: string, deviceId: string) {

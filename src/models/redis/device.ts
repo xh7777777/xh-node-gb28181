@@ -1,3 +1,5 @@
+import { zlmStreamMode } from "../../types/enum";
+
 export interface IRedisDevice {
     deviceId: string;
     deviceRealm?: string;
@@ -31,5 +33,6 @@ export interface IDeviceChannel {
     channelName: string;
     rtpUrl?: string;
     rtpPort?: number;
+    streamMode?: zlmStreamMode;
 }
 

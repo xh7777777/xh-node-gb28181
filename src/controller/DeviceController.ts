@@ -7,7 +7,7 @@ const logger = logUtil("DeviceController");
 import { Context, Next } from "koa";
 import { resolve } from "../utils/httpUtil";
 import InviteEmitter from "../Sip/emitter/InviteEmitter";
-import { mediaProtocolEnum, deviceControlActionEnum } from "../types/enum";
+import { mediaProtocolEnum, deviceControlActionEnum, zlmStreamMode } from "../types/enum";
 import { encodeUri } from "../utils/httpUtil";
 import cacheUtil from "../utils/cacheUtil";
 import ZLMediaKit from "../Media/ZLMediaKit";
@@ -50,7 +50,17 @@ export class DeviceController {
     await client.hSet("channel", key, value);
   }
 
-  public static async getChannelFromRedis(deviceId: string, channelId: number) {
+  public static async setChannelStreamMode(deviceId: string, channelId: string, streamMode: zlmStreamMode) {
+    const key = `${deviceId}@${channelId}`;
+    const value = await client.hGet("channel", key);
+    if (value) {
+      const channel = JSON.parse(value);
+      channel.streamMode = streamMode;
+      await DeviceController.setChannelToRedis(channel);
+    }
+  }
+
+  public static async getChannelFromRedis(deviceId: string, channelId: string) {
     const key = `${deviceId}@${channelId}`;
     const value = await client.hGet("channel", key);
     return value === undefined ? null : JSON.parse(value);
@@ -131,6 +141,7 @@ export class DeviceController {
     if (device) {
       // 发送invite推流
       const res = await InviteEmitter.sendInviteStream(device, channelId);
+      logger.info("inviteStream", res);
       if (res.code === 500) {
           ctx.body = resolve.fail(res.message);
           return;
@@ -213,6 +224,18 @@ export class DeviceController {
       // 发送ptz控制
       MessageEmitter.sendPtz(device, deviceControlActionEnum[action as keyof typeof deviceControlActionEnum]);
       ctx.body = resolve.success('操作成功');
+    } else {
+      ctx.body = resolve.fail('设备不存在');
+    }
+  }
+
+  public static async changeStreamMode(ctx:Context, next:Next) {
+    const { deviceId, channelId, streamMode } = ctx.request.body;
+    const device = await DeviceController.getDeviceById({deviceId});
+    if (device) {
+      // 设置通道流模式
+      await DeviceController.setChannelStreamMode(deviceId, channelId, zlmStreamMode[streamMode as keyof typeof zlmStreamMode] || '未知');
+      ctx.body = resolve.success('设置成功');
     } else {
       ctx.body = resolve.fail('设备不存在');
     }

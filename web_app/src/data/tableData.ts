@@ -23,5 +23,6 @@ export interface DeviceChannelDataType {
     deviceId: string;
     channelId: string;
     channelName: string;
+    streamMode: any;
 }
   

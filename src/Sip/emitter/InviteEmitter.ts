@@ -23,19 +23,15 @@ export default class InviteEmitter {
 
     // 创建rtp端口
     try {
-      const cacheStreamId = cacheUtil.get(`${device.deviceId}@${channelId}`) as any;
-      if (cacheStreamId) {
-        return {
-          code: 0,
-          message: "success",
-          port: cacheStreamId.rtpPort,
-          url: cacheStreamId.rtspUrl,
-        }
+      const time = cacheUtil.get(`${device.deviceId}@${channelId}`) as any;
+      if (time) {
+        clearTimeout(time as NodeJS.Timeout);
       }
+      const channel = await DeviceController.getChannelFromRedis(device.deviceId, channelId);
       const openRtp = await ZLMediaKit.openRtpServer({
         port: 0,
         stream_id: `${device.deviceId}_${channelId}`,
-        tcp_mode: 1,
+        tcp_mode: channel.streamMode || 1,
       });
       if (!openRtp?.port) return {
         code: 500,

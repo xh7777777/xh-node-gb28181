@@ -72,5 +72,17 @@ deviceRouter.post(
   DeviceController.ptzControl
 );
 
+// @ts-ignore
+deviceRouter.post(
+  "/deviceChannelStreamMode",
+  jwtAuth({
+    secret: process.env.JWT_SECRET || "secret",
+  }),
+  koaAuth,
+  DeviceController.changeStreamMode
+);
+
+
+
 
 export default deviceRouter;

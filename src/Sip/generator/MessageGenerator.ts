@@ -42,6 +42,9 @@ export default class MessageGenerator {
         SN: v4(),
         DeviceID: deviceId,
         PTZCmd: ptzCmd,
+        Info : {
+          ControlPriority: 5,
+        }
       },
     };
 

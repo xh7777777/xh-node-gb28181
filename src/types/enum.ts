@@ -54,9 +54,9 @@ export enum deviceControlActionEnum {
 }
 
 export enum ptzCmdEnum {
-    startLeft= "A50F010290000047",
+    left= "A50F010290000047",
     stop= "A50F0100000000B5",
-    startRight= "A50F010190000046",
+    right= "A50F010190000046",
     up= "A50F010800FA00B7",
     down="A50F010400FA00B3",
     leftup= "A50F010AFAFA00B3",
@@ -69,4 +69,10 @@ export enum ptzCmdEnum {
     focusIn="A50F014800FA00F7",
     irisOut="A50F0141FA0000F0",
     irisIn = "A50F0142FA0000F1",
+}
+
+export enum zlmStreamMode {
+    udp = "0",
+    tcpPassive = "1",
+    tcpActive = "2",
 }

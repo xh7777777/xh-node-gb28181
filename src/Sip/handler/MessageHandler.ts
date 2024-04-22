@@ -6,7 +6,7 @@ import { getDeviceInfoFromSip } from "../../utils/SipUtil";
 import digest from "sip/digest";
 import logUtil from "../../utils/logUtil";
 const logger = logUtil("MessageHandler");
-import { DeviceInfoCmdTypeEnum } from "../../types/enum";
+import { DeviceInfoCmdTypeEnum, zlmStreamMode } from "../../types/enum";
 import xml2js from "xml2js";
 import MessageEmitter from "../emitter/MessageEmitter";
 import { IDeviceChannel } from "../../models/redis/device";
@@ -51,6 +51,7 @@ export default class MessageHandler {
               deviceId: deviceId,
               channelName: Name ? Name[0] : "",
               channelId: DeviceID ? DeviceID[0] : "",
+              streamMode: zlmStreamMode.tcpPassive
             };
             await DeviceController.setChannelToRedis(channel);
           }
