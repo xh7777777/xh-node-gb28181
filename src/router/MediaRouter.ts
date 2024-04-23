@@ -10,16 +10,6 @@ const mediaRouter = new Router({
 });
 
 // @ts-ignore
-// deviceRouter.get(
-//   "/list",
-//   jwtAuth({
-//     secret: process.env.JWT_SECRET || "secret",
-//   }),
-//   koaAuth,
-//   DeviceController.getDeviceList
-// );
-
-// @ts-ignore
 mediaRouter.post("/closeInvite", DeviceController.closeStream);
 
 // @ts-ignore
@@ -27,6 +17,24 @@ mediaRouter.get("/testVideo", MediaController.testVideo);
 
 // @ts-ignore
 mediaRouter.post("/playVideo", MediaController.handleRtspRequest);
+
+// @ts-ignore
+mediaRouter.post("/getSnap", MediaController.getSnap);
+
+// @ts-ignore
+mediaRouter.post("/startRecord", MediaController.startRecord);
+
+// @ts-ignore
+mediaRouter.post("/stopRecord", MediaController.stopRecord);
+
+// @ts-ignore
+mediaRouter.post("/isRecording", MediaController.isRecording);
+
+// @ts-ignore
+mediaRouter.post("/getMp4RecordFile", MediaController.getMp4RecordFile);
+
+// @ts-ignore
+mediaRouter.get("/getMp4Record", MediaController.playRecord);
 
 // @ts-ignore
 // userRouter.get(

@@ -125,3 +125,44 @@ export async function deviceChannelStreamMode(deviceId: string, channelId: strin
     streamMode
   });
 }
+
+export async function getSnap(url: string, timeout_sec = 10, expire_sec = 30) {
+  return await request.post("/media/getSnap", {
+    url,
+    timeout_sec,
+    expire_sec
+  });
+}
+
+export async function startRecord(app: string, stream: string) {
+  return await request.post("/media/startRecord", {
+    app,
+    stream
+  });
+}
+
+export async function stopRecord(app: string, stream: string) {
+  return await request.post("/media/stopRecord", {
+    app,
+    stream
+  });
+}
+
+export async function isRecording(app: string, stream: string) {
+  return await request.post("/media/isRecording", {
+    app,
+    stream
+  });
+}
+
+export async function getMp4RecordFile(app: string, stream: string, period: any) {
+  return await request.post("/media/getMp4RecordFile", {
+    app,
+    stream,
+    period
+  });
+}
+
+export function getMp4Record({app, stream, date, fileName}: {app: string, stream: string, date: string, fileName: string}) {
+  return `http://localhost:3000/xhgb28181/media/getMp4Record?app=${app}&stream=${stream}&date=${date}&fileName=${fileName}`;
+}
