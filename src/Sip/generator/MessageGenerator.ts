@@ -9,6 +9,7 @@ import { xmlBuilder } from "../../utils/xmlUtil";
 // 负责发送message
 export default class MessageGenerator {
 
+  // 获取设备信息
   public static getDeviceInfo(device: IRedisDevice, CmdType: DeviceInfoCmdTypeEnum): SipRequest {
     const { deviceId } = device;
     const queryObj = {
@@ -31,4 +32,60 @@ export default class MessageGenerator {
     // logger.info("生成获取设备信息报文：", sipMessageHelper.getMessage());
     return sipMessageHelper.getMessage();
   }
+
+  // 云台控制Message
+  public static ptzControl(device: IRedisDevice, CmdType: DeviceInfoCmdTypeEnum, ptzCmd: string): SipRequest {
+    const { deviceId } = device;
+    const queryObj = {
+      Query: {
+        CmdType,
+        SN: v4(),
+        DeviceID: deviceId,
+        PTZCmd: ptzCmd,
+        Info : {
+          ControlPriority: 5,
+        }
+      },
+    };
+
+    const xml = xmlBuilder.buildObject(queryObj);
+
+    const sipMessage: ISipMessage = {
+      method: sipMethodEnum.message,
+      content: xml + '\r\n\r\n',
+      contentType: sipContentTypeEnum.xml,
+      deviceInfo: device,
+    };
+    const sipMessageHelper = new SipMessageHelper(sipMessage);
+    // logger.info("生成云台控制报文：", sipMessageHelper.getMessage());
+    return sipMessageHelper.getMessage();
+  }
+
+  // 查询录像信息
+  public static getRecordInfo(device: IRedisDevice, CmdType: DeviceInfoCmdTypeEnum, channelId: string ,startTime: string, endTime: string): SipRequest {
+    const { deviceId } = device;
+    const queryObj = {
+      Query: {
+        CmdType,
+        SN: v4(),
+        DeviceID: deviceId,
+        StartTime: startTime,
+        EndTime: endTime,
+        FilePath: channelId,
+      },
+    };
+
+    const xml = xmlBuilder.buildObject(queryObj);
+
+    const sipMessage: ISipMessage = {
+      method: sipMethodEnum.message,
+      content: xml + '\r\n\r\n',
+      contentType: sipContentTypeEnum.xml,
+      deviceInfo: device,
+    };
+    const sipMessageHelper = new SipMessageHelper(sipMessage);
+    // logger.info("生成云台控制报文：", sipMessageHelper.getMessage());
+    return sipMessageHelper.getMessage();
+  }
+
 }

@@ -1,16 +1,71 @@
 import React from 'react'
 import { useRequest } from 'ahooks'
-import { getDeviceList, testInvite, closeInvite } from '../apis'
+import { getVideoUrl, getChannelList, closeInvite, deleteChannelVideo, deviceChannelStreamMode } from '../apis'
 import { Spin } from 'antd'
-import { Button, Table, TableProps } from 'antd'
+import { Button, Table, TableProps, message, Modal, Select } from 'antd'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { DeviceChannelDataType } from '../data/tableData'
+import VideoPopUp from '../components/VideoPopUp'
+
+const streamModeMap = {
+  0: 'UDP',
+  1: 'TCP被动',
+  2: 'TCP主动',
+  undefined: '未知',
+}
 
 function DeviceChannel() {
   const navigate = useNavigate();
   const location = useLocation();
+  const deviceId = location.search.split('=')[1]
+  const [socketUrl, setSocketUrl] = React.useState<string>("");
+  const [currentChannelId, setCurrentChannelId] = React.useState<string>("");
+  const [currentChannelName, setCurrentChannelName] = React.useState<string>("");
+  const [messageApi, contextHolder] = message.useMessage();
+  const [videoShow, setVideoShow] = React.useState<boolean>(false);
+  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
   // 获取设备通道
-  const { data, error, loading } = useRequest(async () => await getDeviceList());
+  const { data, error, loading } = useRequest(async () => await getChannelList(deviceId));
+
+  const handleAddToMain = (channelId: string, channelName :string) => {
+    setCurrentChannelId(channelId)
+    setCurrentChannelName(channelName)
+    setModalOpen(true)
+  }
+
+  const handleSetStorage = ({channelId, deviceId, socketUrl, section}: {channelId: string, deviceId: string, socketUrl: string, section: number}) => {
+    const storage = window.localStorage;
+    const streamObj = {
+      section,
+      channelId,
+      deviceId,
+      socketUrl,
+      channelName: currentChannelName
+    }
+    const streams = storage.getItem('stream')
+    if (streams) {
+      const streamArray = JSON.parse(streams)
+      let isExist = false;
+      for (let i = 0; i < streamArray.length; i++) {
+        if (streamArray[i].section === section) {
+          streamArray[i] = streamObj;
+          isExist = true;
+          break;
+        }
+      }
+      if (!isExist) streamArray.push(streamObj)
+      storage.setItem('stream', JSON.stringify(streamArray))
+    } else {
+      storage.setItem('stream', JSON.stringify([streamObj]))
+    }
+    setModalOpen(false)
+    messageApi.success('添加成功')
+  }
+
+  const handleStreamModeChange = async (value: string, record: any) => {
+    const res = await deviceChannelStreamMode(record.deviceId, record.channelId, value);
+    messageApi.success(res?.data?.data?.msg)
+  }
 
   const columns: TableProps<DeviceChannelDataType>["columns"] = [
     {
@@ -29,13 +84,43 @@ function DeviceChannel() {
       key: "channelId",
     },
     {
+      title: "设备id",
+      dataIndex: "deviceId",
+      key: "deviceId",
+    },
+    {
+      title: "推流模式",
+      dataIndex: "streamMode",
+      key: "streamMode",
+      render: (text, record) => (
+        <Select
+        defaultValue={record.streamMode}
+        style={{ width: 120 }}
+        onChange={async (value) => await handleStreamModeChange(value, record)}
+        options={[
+          { value: 'udp', label: 'UDP' },
+          { value: 'tcpPassive', label: 'TCP被动' },
+          { value: 'tcpActive', label: 'TCP主动' },
+        ]}
+      />
+      )
+    },
+    {
       title: "操作",
       dataIndex: "operation",
       key: "operation",
       render: (text, record) => (
-        <Button onClick={() => navigate('/device?channel=1')}>
-          播放视频
+        <div className='flex gap-2'>
+          <Button onClick={() => handlePlayVideo(record.channelId, record.deviceId)}>
+            播放视频
+          </Button>
+          <Button onClick={() => handleAddToMain(record.channelId, record.channelName)}>
+          添加首页
         </Button>
+          <Button onClick={() => handleCloseVideo(record.channelId, record.deviceId)} danger>
+          关闭视频
+        </Button>
+        </div>
       ),
     },
   ];
@@ -51,27 +136,64 @@ function DeviceChannel() {
   if (error) {
     throw error;
   }
-  // const channelList = Object.values(data?.data.data).map((item: unknown) => (JSON.parse(typeof item === 'string' ? item : JSON.stringify(item))));
-  // const deviceTable: DeviceChannelDataType[] = channelList.map((item, index) => ({
-  //   index,
-  //   key: item.channelId,
-  //   channelId: item.channelId,
-  //   channelName: item.channelName,
-  // }));
-  function handlePlayVideo() {
-    navigate('/device/channel/video')
+  const channelList = Object.values(data?.data.data).map((item: unknown) => (JSON.parse(typeof item === 'string' ? item : JSON.stringify(item))));
+  const deviceTable: DeviceChannelDataType[] = channelList.map((item, index) => ({
+    index,
+    deviceId: item.deviceId,
+    key: item.channelId,
+    channelId: item.channelId,
+    channelName: item.channelName,
+    streamMode: streamModeMap[item.streamMode as keyof typeof streamModeMap],
+  }));
+
+  async function handlePlayVideo(channelId: string, deviceId: string) {
+    try {
+      setCurrentChannelId(channelId)
+      const { data } = await getVideoUrl(deviceId, channelId);
+      const socketUrl = data?.data?.prefix + '/' + data?.data?.url.replace(/\//g, "%2F");
+      setSocketUrl(socketUrl)
+      setVideoShow(true)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async function handleCloseVideo(channelId: string, deviceId: string) {
+    const res = await deleteChannelVideo(deviceId, channelId);
+    messageApi.success(res?.data?.data?.msg)
   }
 
 
   return (
     <div>
+      {contextHolder}
           <div className=' font-bold text-lg mb-4'>通道列表</div>
-          <Button onClick={handlePlayVideo}>播放视频</Button>
-          {/* <Table
+          <Modal
+          title="选择分区"
+          open={modalOpen}
+          // onOk={() => handleDelete(deleteChoice)}
+          footer={null}
+          onCancel={() => setModalOpen(false)}
+        >
+          <div className='h-80'>
+            <div className=' flex-1 h-full flex gap-2 flex-col text-white font-bold text-3xl'>
+            <div className='flex h-1/2 gap-2'>
+            <div onClick={() => handleSetStorage({channelId: currentChannelId, deviceId, socketUrl, section: 1})} className=' w-1/2 bg-black flex justify-center items-center cursor-pointer hover:bg-cyan-800 duration-150 transition-colors'>1</div>
+            <div onClick={() => handleSetStorage({channelId: currentChannelId, deviceId, socketUrl, section: 2})} className=' w-1/2 bg-black flex justify-center items-center cursor-pointer hover:bg-cyan-800 duration-150 transition-colors'>2</div>
+            </div>
+            <div className='flex h-1/2 gap-2'>
+            <div onClick={() => handleSetStorage({channelId: currentChannelId, deviceId, socketUrl, section: 3})} className=' w-1/2 bg-black flex justify-center items-center cursor-pointer hover:bg-cyan-800 duration-150 transition-colors'>3</div>
+            <div onClick={() => handleSetStorage({channelId: currentChannelId, deviceId, socketUrl, section: 4})} className=' w-1/2 bg-black flex justify-center items-center cursor-pointer hover:bg-cyan-800 duration-150 transition-colors'>4</div>
+            </div>
+          </div>
+          </div>
+        </Modal>
+          <Table
             columns={columns}
             dataSource={deviceTable}
             pagination={false}
-          /> */}
+          />
+          <VideoPopUp socketUrl={socketUrl} show={videoShow} handleCloseVideo={() => setVideoShow(false)} deviceId={deviceId} channelId={currentChannelId} messageApi={messageApi}/>
     </div>
 
   )

@@ -13,12 +13,16 @@ export  interface DeviceDataType {
     deviceId: string;
     channelCount: number;
     deviceName: string;
+    lastPulse: string;
+    onlineStatus: string;
   }
 
 export interface DeviceChannelDataType {
     index: number;
     key: string;
+    deviceId: string;
     channelId: string;
     channelName: string;
+    streamMode: any;
 }
   

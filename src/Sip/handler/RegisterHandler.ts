@@ -10,6 +10,7 @@ import { SIP_CONFIG } from "../../config";
 import MessageGenerator from "../generator/MessageGenerator";
 import { DeviceInfoCmdTypeEnum } from "../../types/enum";
 import { IRedisDevice } from "../../models/redis/device";
+import MessageEmitter from "../emitter/MessageEmitter";
 
 export default class RegisterHandler {
   public static async handleRegister(req: SipRequest) {
@@ -21,11 +22,8 @@ export default class RegisterHandler {
         // 更新设备信息到redis
         await DeviceController.setDeviceToRedis(device);
         // 发送获取设备详细信息
-        const deviceInfoReq = MessageGenerator.getDeviceInfo(
-          device,
-          DeviceInfoCmdTypeEnum.DeviceInfo
-        );
-        sip.send(deviceInfoReq);
+        await MessageEmitter.sendGetDeviceInfo(device);
+        await MessageEmitter.sendGetDeviceCatalog(device);
       }
     } else {
       logger.error("服务器内部错误", req, resp);

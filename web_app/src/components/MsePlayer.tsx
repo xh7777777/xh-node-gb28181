@@ -3,11 +3,10 @@ import useWebSocket, { ReadyState } from "react-use-websocket";
 import { Button } from "antd";
 import FLVPlayer from "./FlvPalyer";
 
-function MsePlayer({ socketUrl }: { socketUrl: string }) {
+function MsePlayer({ socketUrl, className, height, width, flvConfig }: { socketUrl: string, className?: string, height?: number, width?: number, flvConfig?: any}) {
   const [socket, setSocket] = React.useState(socketUrl);
   const [message, setMessage] = React.useState("");
   const { sendMessage, lastMessage, readyState } = useWebSocket(socket);
-  console.log(socket)
 
   React.useEffect(() => {
     if (lastMessage !== null) {
@@ -34,12 +33,8 @@ function MsePlayer({ socketUrl }: { socketUrl: string }) {
     [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState];
   return (
-    <div>
-      Player
-      <div>url:{socketUrl}</div>
-        <Button onClick={handleClickSendMessage}>send hello</Button>
-        <span>state: {connectionStatus}</span>
-        <FLVPlayer url={socket} type={`flv`} isLive={true} muted={true} controls={true} autoPlay={true}/>
+    <div className={className}>
+        <FLVPlayer url={socket} type={`flv`} isLive={true} muted={true} controls={true} autoPlay={true} flvConfig={flvConfig}/>
     </div>
   );
 }

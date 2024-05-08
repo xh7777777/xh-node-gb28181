@@ -11,6 +11,7 @@ import DeviceChannel from "../pages/DeviceChannel";
 import Main from "../pages/Main";
 import Device from "../pages/Device";
 import VideoPlayer from "../pages/VideoPlayer";
+import Record from "../pages/Record";
 
 export default createBrowserRouter([
     {
@@ -44,6 +45,11 @@ export default createBrowserRouter([
                         errorElement: <ErrorPage />,
                     }
                 ]
+            },
+            {
+                path: "/record",
+                element: <Record />,
+                errorElement: <ErrorPage />,
             },
             {
                 path: "/user",

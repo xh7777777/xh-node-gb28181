@@ -1,8 +1,9 @@
 import MessageGenerator from "../generator/MessageGenerator";
-import { DeviceInfoCmdTypeEnum } from "../../types/enum";
+import { DeviceInfoCmdTypeEnum, deviceControlActionEnum, ptzCmdEnum } from "../../types/enum";
 import { IRedisDevice } from "../../models/redis/device";
 import sip from "sip";
-
+import logUtil from "../../utils/logUtil";
+const logger = logUtil("MessageEmitter");
 export default class MessageEmitter {
     public static async sendKeepAlive(device: IRedisDevice) {
         const message = MessageGenerator.getDeviceInfo(device, DeviceInfoCmdTypeEnum.Keepalive);
@@ -22,5 +23,19 @@ export default class MessageEmitter {
     public static async sendGetDeviceStatus(device: IRedisDevice) {
         const message = MessageGenerator.getDeviceInfo(device, DeviceInfoCmdTypeEnum.DeviceStatus);
         sip.send(message);
+    }
+
+    // 云台控制
+    public static async sendPtz(device: IRedisDevice, action: deviceControlActionEnum) {
+        logger.info("发送云台控制", action, ptzCmdEnum[action as keyof typeof ptzCmdEnum]);
+        const message = MessageGenerator.ptzControl(device, DeviceInfoCmdTypeEnum.DeviceControl, ptzCmdEnum[action as keyof typeof ptzCmdEnum]);
+        sip.send(message);
+    }
+
+    // 获取录像信息
+    public static async sendRecordInfo(device: IRedisDevice, channelId: string, startTime: string, endTime: string) {
+        const message = MessageGenerator.getRecordInfo(device, DeviceInfoCmdTypeEnum.RecordInfo, channelId, startTime, endTime);
+        sip.send(message);
+
     }
 }

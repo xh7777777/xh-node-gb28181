@@ -37,4 +37,5 @@ export const ZLMediaKitConfig = {
     secret: process.env.ZLMediaKit_SECRET,
     rtp_port_min: process.env.ZLMediaKit_RTP_PORT_MIN || 10000,
     rtp_port_max: process.env.ZLMediaKit_RTP_PORT_MAX || 20000,
+    rtmp_port: process.env.ZLMediaKit_RTMP_PORT || 1935,
 };
